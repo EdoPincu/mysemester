@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>מערכת שנה ב׳ — משפטים וחשבונאות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F4EF; --card:#FFFFFF; --ink:#20272E; --muted:#727B84;
+    --line:#E5E3D9; --line-2:#EFEDE5;
+    --mand:#2E6E69; --mand-soft:#E1EEEC; --mand-ink:#204d49;
+    --elec:#B0722A; --elec-soft:#F5EBDC; --elec-ink:#7e5119;
+    --conflict:#C0392B; --conflict-soft:#F7E4E1;
+    --shadow:0 1px 2px rgba(32,39,46,.06),0 8px 24px rgba(32,39,46,.06);
+    --r:14px;
+    --serif:'Frank Ruhl Libre',Georgia,'Times New Roman',serif;
+    --sans:'Heebo','Assistant','Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .ex-row.tight, :root:not([data-theme="light"]) .clash-row.mild,
+    :root:not([data-theme="light"]) .ex-missing{background:#3a2e1f; border-color:#5c4527; color:#e9c290}
+    :root:not([data-theme="light"]) .daynames div.freeday{background:#1f3324; color:#9fd6a6}
+    :root:not([data-theme="light"]) .clash-row{color:#f0b3ab}
+    :root:not([data-theme="light"]) .sem-badge{background:#2e353c; color:#c6ccd2}
+    :root:not([data-theme="light"]) .ev.mand{border-color:#2d4a47}
+    :root:not([data-theme="light"]) .ev.elec{border-color:#55432a}
+  }
+  /* safe areas (phones draw edge to edge under translucent bars) */
+  :root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+  html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+  /* dark theme — follows the viewer unless it forces light */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#15191d; --card:#1d2227; --ink:#E6E9EC; --muted:#98A1AA;
+      --line:#2e353c; --line-2:#262c32;
+      --mand:#5fb3ab; --mand-soft:#1f3634; --mand-ink:#9fd6d0;
+      --elec:#d8a060; --elec-soft:#3a2e1f; --elec-ink:#e9c290;
+      --conflict:#e0685c; --conflict-soft:#3d2320;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#15191d; --card:#1d2227; --ink:#E6E9EC; --muted:#98A1AA;
+    --line:#2e353c; --line-2:#262c32;
+    --mand:#5fb3ab; --mand-soft:#1f3634; --mand-ink:#9fd6d0;
+    --elec:#d8a060; --elec-soft:#3a2e1f; --elec-ink:#e9c290;
+    --conflict:#e0685c; --conflict-soft:#3d2320;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper); color:var(--ink); font-family:var(--sans);
+    font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  button{font-family:inherit;cursor:pointer}
+
+  /* ---------- Header ---------- */
+  .top{
+    background:var(--card); border-bottom:1px solid var(--line);
+    padding:16px clamp(14px,4vw,34px);
+    display:flex; align-items:flex-end; justify-content:space-between;
+    flex-wrap:wrap; gap:14px 20px;
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:41;
+  }
+  .brand h1{
+    font-family:var(--serif); font-weight:900; letter-spacing:-.01em;
+    font-size:clamp(22px,3.4vw,30px); margin:0; line-height:1.05;
+  }
+  .brand p{margin:4px 0 0; color:var(--muted); font-size:13.5px}
+  .sync-badge{font-size:11.5px; font-weight:600; color:var(--mand); white-space:nowrap}
+  .brand .kicker{
+    font-size:11px; letter-spacing:.18em; font-weight:700; color:var(--mand);
+    text-transform:uppercase; margin-bottom:2px; display:block;
+  }
+  /* ledger tally */
+  .tally{display:flex; gap:10px; flex-wrap:wrap}
+  .stat{
+    background:var(--paper); border:1px solid var(--line); border-radius:11px;
+    padding:8px 13px; min-width:78px; text-align:center; line-height:1.15;
+  }
+  .stat b{font-family:var(--serif); font-size:21px; font-weight:700; display:block}
+  .stat span{font-size:11px; color:var(--muted); font-weight:600; letter-spacing:.02em}
+  .stat.mand b{color:var(--mand)}
+  .stat.elec b{color:var(--elec)}
+  .stat.warn b{color:var(--conflict)}
+  .stat.warn.ok b{color:var(--mand)}
+
+  /* ---------- Plan tabs ---------- */
+  .tabs-bar{
+    background:var(--card); border-bottom:1px solid var(--line);
+    padding:0 clamp(14px,4vw,34px); position:relative; z-index:39;
+  }
+  .tabs{display:flex; gap:7px; overflow-x:auto; padding:9px 0}
+  .tab{
+    border:1px solid var(--line); background:var(--paper); border-radius:11px;
+    padding:7px 13px; text-align:start; white-space:nowrap; color:var(--muted);
+    display:flex; flex-direction:column; gap:1px; position:relative; min-width:104px;
+    padding-inline-end:24px;
+  }
+  .tab:hover{border-color:#cdd4d3}
+  .tab.on{background:var(--card); border-color:var(--mand); color:var(--ink); box-shadow:var(--shadow)}
+  .tab-name{font-weight:700; font-size:13.5px}
+  .tab-meta{font-size:10.5px; color:var(--muted); font-weight:600}
+  .tab.on .tab-meta{color:var(--mand)}
+  .tab-menu{
+    position:absolute; inset-inline-end:5px; top:4px; font-size:13px; color:var(--muted);
+    padding:0 3px; border-radius:5px; line-height:1;
+  }
+  .tab-menu:hover{background:var(--paper); color:var(--ink)}
+  .tab.add{
+    min-width:40px; align-items:center; justify-content:center; font-size:17px;
+    font-weight:400; color:var(--muted); border-style:dashed;
+  }
+  .tab.add:hover{border-color:var(--mand); color:var(--mand)}
+
+  /* ---------- Layout ---------- */
+  .wrap{
+    max-width:1400px; margin:0 auto; padding:clamp(14px,3vw,26px);
+    display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:clamp(16px,2.5vw,28px);
+    align-items:start;
+  }
+  @media(max-width:1000px){ .wrap{grid-template-columns:minmax(0,1fr)} }
+  /* desktop: header + tabs stay put, courses and calendar each scroll on their own */
+  @media(min-width:1001px){
+    body{height:100vh; height:100dvh; display:flex; flex-direction:column; overflow:hidden}
+    .top,.tabs-bar{flex:none}
+    .wrap{flex:1 1 auto; min-height:0; width:100%; grid-template-rows:minmax(0,1fr); align-items:stretch; padding-block:0}
+    .catalog,.cal-col{
+      min-height:0; overflow-y:auto; overscroll-behavior:contain;
+      padding-block:clamp(14px,3vw,26px); padding-inline:4px; margin-inline:-4px;
+    }
+  }
+
+  .panel-title{
+    font-family:var(--serif); font-weight:700; font-size:19px; margin:0 0 3px;
+    display:flex; align-items:center; gap:9px;
+  }
+  .panel-title .num{
+    font-family:var(--sans); font-size:11px; font-weight:700; color:var(--muted);
+    background:var(--card); border:1px solid var(--line); border-radius:20px; padding:2px 9px;
+  }
+  .panel-sub{color:var(--muted); font-size:13px; margin:0 0 14px}
+
+  /* ---------- Calendar (left / sticky) ---------- */
+  @media(max-width:1000px){ .cal-col{order:-1} }
+
+  .cal-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    flex-wrap:wrap; margin-bottom:12px;
+  }
+  .seg{display:inline-flex; background:var(--paper); border:1px solid var(--line); border-radius:11px; padding:3px}
+  .seg button{
+    border:0; background:transparent; color:var(--muted); font-weight:700; font-size:13.5px;
+    padding:7px 15px; border-radius:8px; transition:.15s;
+  }
+  .seg button.on{background:var(--card); color:var(--ink); box-shadow:var(--shadow)}
+  .seg .cnt{font-size:11px; color:var(--muted); font-weight:600; margin-inline-start:5px}
+  .seg button.on .cnt{color:var(--mand)}
+
+  .stat.free b{color:#2f7d32}
+  .daynames div.freeday{color:#2f7d32; background:#E8F3E9}
+  .free-tag{display:block; font-size:9.5px; font-weight:700; color:#3f9142; margin-top:1px}
+  .wish-tag{display:block; font-size:9.5px; font-weight:700; color:#b0722a; margin-top:1px}
+  .col-free{background:repeating-linear-gradient(135deg,transparent,transparent 9px,rgba(63,145,66,.05) 9px,rgba(63,145,66,.05) 18px)}
+  .chip.free{background:#E8F3E9; border-color:#c9e2cb; color:#2f7d32}
+  .pin-btn{
+    border:1px solid var(--line); background:var(--paper); border-radius:8px;
+    padding:3px 7px; font-size:11px; filter:grayscale(1); opacity:.5;
+  }
+  .pin-btn:hover{opacity:.85}
+  .pin-btn.on{filter:none; opacity:1; background:#FDF4E3; border-color:#e2c58f}
+  .opt-exam{
+    border:0; background:transparent; font-size:12px; width:24px; height:24px;
+    border-radius:6px; flex:0 0 auto; filter:grayscale(1); opacity:.45;
+  }
+  .opt-exam:hover{opacity:.9}
+  .opt-exam.on{filter:none; opacity:1}
+  .meet.exam{background:#EEF2FA; border-color:#cfdaef; color:#33507f}
+  .meet.exam.b{background:#F4F0FA; border-color:#dcd2ee; color:#5b46a0}
+
+  /* exam panel */
+  .exams{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+    box-shadow:var(--shadow); padding:12px 14px; margin-top:12px;
+  }
+  .ex-head{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px}
+  .ex-head b{font-family:var(--serif); font-size:16px}
+  .ex-head .seg button{padding:5px 10px; font-size:12px}
+  .ex-sum{display:flex; gap:5px; flex-wrap:wrap; margin-bottom:9px}
+  .ex-row{
+    display:grid; grid-template-columns:112px 1fr auto; gap:9px; align-items:baseline;
+    padding:7px 9px; border-radius:9px; font-size:13px; border:1px solid transparent;
+  }
+  .ex-row:nth-child(odd){background:var(--paper)}
+  .ex-date{font-weight:700; font-variant-numeric:tabular-nums; font-size:12.5px}
+  .ex-name{font-weight:600}
+  .ex-lbl{font-size:10.5px; color:var(--muted); font-weight:700; margin-inline-start:6px}
+  .ex-gap{font-size:11.5px; color:var(--muted); white-space:nowrap}
+  .ex-row.tight{background:#FDF4E3; border-color:#e2c58f}
+  .ex-row.tight .ex-gap{color:#8a6224; font-weight:700}
+  .ex-row.same{background:var(--conflict-soft); border-color:#eec8c2}
+  .ex-row.same .ex-gap{color:#8a2c20; font-weight:700}
+  .ex-empty{color:var(--muted); font-size:13px; padding:6px 2px; line-height:1.5}
+  .ex-missing{margin-top:9px; font-size:12px; color:#8a6224; background:#FDF4E3;
+    border:1px solid #e2c58f; border-radius:9px; padding:7px 10px}
+  .opt-lock{
+    border:0; background:transparent; font-size:12px; width:24px; height:24px;
+    border-radius:6px; flex:0 0 auto; filter:grayscale(1); opacity:.45;
+  }
+  .opt-lock:hover{opacity:.9}
+  .opt-lock.on{filter:none; opacity:1}
+  .course.pinned{box-shadow:inset 3px 0 0 #d9a441}
+  .track-btn{
+    border:1px solid var(--line); background:var(--paper); border-radius:20px;
+    padding:3px 9px; font-size:10.5px; font-weight:700; white-space:nowrap; color:var(--muted);
+  }
+  .track-btn:hover{filter:brightness(.96)}
+  .chip.pin{background:#FDF4E3; border-color:#e2c58f; color:#8a6224}
+  .stat.pin b{color:#b0722a}
+  .trk-opt{
+    border:1px solid var(--line); background:var(--paper); border-radius:11px;
+    padding:11px 13px; font-weight:700; font-size:14px; text-align:start; margin-bottom:7px; width:100%;
+  }
+  .tx-area{width:100%; margin-top:8px; border:1px solid var(--line); border-radius:10px; padding:9px 11px;
+    font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px; background:var(--paper); color:var(--ink); resize:vertical; direction:ltr}
+  .tm-row{display:flex; gap:7px; align-items:center; margin-bottom:8px}
+  .tm-row .tm-icon{width:48px; text-align:center; padding:9px 4px; border:1px solid var(--line); border-radius:9px; background:var(--paper); font-size:14px}
+  .tm-row .tm-name{flex:1; padding:9px 11px; border:1px solid var(--line); border-radius:9px; background:var(--paper); font-family:inherit; font-size:14px}
+  .tm-row .tm-color{padding:9px 6px; border:1px solid var(--line); border-radius:9px; background:var(--paper); font-size:12px}
+  .tm-count{font-size:11px; font-weight:700; min-width:20px; text-align:center}
+  .tm-del{border:0;background:transparent;color:var(--muted);width:28px;height:30px;border-radius:7px;font-size:14px}
+  .tm-del:hover{background:var(--conflict-soft); color:var(--conflict)}
+  .chip.law{background:#EDE9F7; border-color:#d5cbee; color:#5b46a0}
+  .stat.law b{color:#5b46a0}
+  .wish-pill.law{background:#EDE9F7; border-color:#d5cbee; color:#5b46a0}
+  .wish-pill.law button{color:#5b46a0}
+  .wish-pill{
+    background:#E8F3E9; border:1px solid #c9e2cb; color:#2f7d32; border-radius:20px;
+    padding:2px 6px 2px 10px; font-weight:600; font-size:12px; display:inline-flex; align-items:center; gap:4px;
+  }
+  .wish-pill button{border:0;background:transparent;color:#2f7d32;font-size:12px;padding:0 3px;line-height:1}
+  .wish-pill button:hover{color:var(--conflict)}
+  .daypick{display:flex; gap:6px; flex-wrap:wrap}
+  .daypick button{
+    border:1px solid var(--line); background:var(--paper); border-radius:9px;
+    padding:8px 12px; font-size:13px; font-weight:600; color:var(--ink);
+  }
+  .daypick button.on{background:#E8F3E9; border-color:#3f9142; color:#2f7d32}
+
+  /* browse bar */
+  .browse{
+    background:var(--card); border:1px solid var(--mand); border-radius:var(--r);
+    box-shadow:var(--shadow); padding:11px 13px; margin-bottom:12px;
+  }
+  .browse.hide{display:none}
+  .bb-top{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .bb-nav{display:flex; align-items:center; gap:8px}
+  .bb-arrow{
+    border:1px solid var(--line); background:var(--paper); border-radius:9px;
+    width:34px; height:32px; font-size:13px; color:var(--ink); line-height:1;
+  }
+  .bb-arrow:hover{background:var(--mand-soft); border-color:var(--mand); color:var(--mand-ink)}
+  .bb-count{font-size:13.5px; color:var(--muted); font-weight:600}
+  .bb-count b{color:var(--ink); font-family:var(--serif); font-size:16px}
+  .bb-acts{display:flex; gap:6px; flex-wrap:wrap}
+  .bb-btn{
+    border:1px solid var(--line); background:var(--card); border-radius:9px;
+    padding:7px 11px; font-size:12.5px; font-weight:600; color:var(--ink);
+  }
+  .bb-btn:hover{background:var(--paper)}
+  .bb-btn.ghost{color:var(--muted); padding:7px 10px}
+  .bb-btn.ghost:hover{border-color:var(--conflict); color:var(--conflict)}
+  .bb-meta{display:flex; flex-wrap:wrap; gap:5px; margin-top:10px}
+  .chip{
+    background:var(--paper); border:1px solid var(--line); border-radius:20px;
+    padding:3px 10px; font-size:11.5px; font-weight:600; color:var(--muted); white-space:nowrap;
+  }
+  .chip.ok{background:var(--mand-soft); border-color:#cfe3e0; color:var(--mand-ink)}
+  .chip.bad{background:var(--conflict-soft); border-color:#eec8c2; color:#8a2c20}
+  .bb-elec{margin-top:8px; font-size:12.5px; color:var(--muted)}
+
+  /* options list in modal */
+  .lwrap{max-height:52vh; overflow:auto; display:flex; flex-direction:column; gap:7px; padding:2px}
+  .lrow{
+    display:flex; gap:10px; align-items:flex-start; text-align:start; width:100%;
+    border:1px solid var(--line); background:var(--paper); border-radius:11px; padding:9px 11px;
+  }
+  .lrow:hover{border-color:var(--mand)}
+  .lrow.cur{background:var(--mand-soft); border-color:var(--mand)}
+  .lidx{
+    font-family:var(--serif); font-weight:700; font-size:14px; color:var(--muted);
+    min-width:26px; text-align:center; padding-top:2px;
+  }
+  .lrow.cur .lidx{color:var(--mand)}
+  .lbody{flex:1; min-width:0}
+  .lchips{display:flex; flex-wrap:wrap; gap:4px}
+  .lelec{display:block; margin-top:5px; font-size:12px; color:var(--muted)}
+
+  .cal-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .grid{position:relative; overflow-x:auto}
+  .grid-inner{position:relative; min-width:560px}
+  .daynames{
+    display:grid; grid-template-columns:44px repeat(5,1fr);
+    border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--card); z-index:3;
+  }
+  .daynames div{
+    text-align:center; font-weight:700; font-size:13px; padding:10px 4px; color:var(--ink);
+    border-inline-start:1px solid var(--line-2);
+  }
+  .daynames div:first-child{border:0}
+  .daynames div.solo{color:var(--elec-ink); background:var(--elec-soft)}
+  .solo-tag{display:block; font-size:9.5px; font-weight:700; color:var(--elec); letter-spacing:.02em; margin-top:1px}
+  .body{
+    display:grid; grid-template-columns:44px repeat(5,1fr); position:relative;
+  }
+  .hours{position:relative; border-inline-end:1px solid var(--line-2)}
+  .hours .hr{
+    position:absolute; inset-inline-end:6px; transform:translateY(-50%);
+    font-size:10.5px; color:var(--muted); font-variant-numeric:tabular-nums; font-weight:600;
+  }
+  .col{position:relative; border-inline-start:1px solid var(--line-2)}
+  .col .line{position:absolute; inset-inline:0; height:0; border-top:1px solid var(--line-2)}
+  .col .line.half{border-top-style:dotted; opacity:.6}
+
+  .ev{
+    position:absolute; border-radius:8px; padding:5px 7px; overflow:hidden;
+    font-size:11.5px; line-height:1.15; cursor:pointer; border:1px solid transparent;
+    transition:transform .1s, box-shadow .1s; z-index:2;
+  }
+  .ev:hover{transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.12); z-index:5}
+  .ev .nm{font-weight:700; display:block; overflow:hidden; text-overflow:ellipsis}
+  .ev .tm{font-size:10px; opacity:.85; font-variant-numeric:tabular-nums; display:block; margin-top:1px}
+  .ev.mand{background:var(--mand-soft); color:var(--mand-ink); border-color:#cfe3e0}
+  .ev.elec{background:var(--elec-soft); color:var(--elec-ink); border-color:#ecdcc3}
+  .ev.clash{
+    border-color:var(--conflict); box-shadow:inset 0 0 0 1.5px var(--conflict);
+    background-image:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(192,57,43,.12) 6px,rgba(192,57,43,.12) 8px);
+  }
+  .ev .x{
+    position:absolute; inset-inline-start:3px; top:3px; width:16px; height:16px; border-radius:50%;
+    background:rgba(255,255,255,.7); color:var(--ink); border:0; font-size:12px; line-height:14px;
+    display:none; padding:0; text-align:center;
+  }
+  .ev:hover .x{display:block}
+  .cal-empty{padding:38px 20px; text-align:center; color:var(--muted); font-size:14px}
+
+  /* conflict list */
+  .clash-list{margin-top:12px; display:flex; flex-direction:column; gap:7px}
+  .clash-row{
+    background:var(--conflict-soft); border:1px solid #eec8c2; border-radius:10px;
+    padding:8px 12px; font-size:13px; color:#8a2c20; display:flex; gap:8px; align-items:center;
+  }
+  .clash-row b{font-weight:700}
+  .clash-row.mild{background:#FDF4E3; border-color:#eddcc2; color:#8a6224}
+  .cl-mins{display:block; font-size:11.5px; font-weight:600; opacity:.85; margin-top:2px}
+  .chip.mild{background:#FDF4E3; border-color:#eddcc2; color:#8a6224}
+
+  /* ---------- Catalog (right) ---------- */
+  .group{margin-bottom:26px}
+  .course{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+    box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden;
+  }
+  .course.picked{border-color:var(--mand)}
+  .course.elec.picked{border-color:var(--elec)}
+  .course-head{
+    display:flex; align-items:center; gap:10px; padding:12px 15px;
+  }
+  .tag{
+    width:9px; height:9px; border-radius:3px; flex:0 0 auto; background:var(--mand);
+  }
+  .course.elec .tag{background:var(--elec)}
+  .course-name{font-weight:700; font-size:15.5px; flex:1; border:0; background:transparent; padding:2px 4px; border-radius:6px; color:var(--ink); font-family:var(--sans)}
+  .course-name:focus{outline:none; background:var(--paper); box-shadow:inset 0 0 0 1px var(--line)}
+  .course .picked-flag{font-size:11px; font-weight:700; color:var(--mand); background:var(--mand-soft); padding:3px 8px; border-radius:20px; display:none}
+  .course.elec .picked-flag{color:var(--elec); background:var(--elec-soft)}
+  .course.picked .picked-flag{display:inline-block}
+  .del{
+    border:0; background:transparent; color:var(--muted); font-size:16px; width:26px; height:26px;
+    border-radius:7px; line-height:1;
+  }
+  .del:hover{background:var(--conflict-soft); color:var(--conflict)}
+
+  .opts{padding:0 15px 13px; display:flex; flex-direction:column; gap:8px}
+  .opt{
+    display:flex; align-items:center; gap:10px; text-align:start; width:100%;
+    border:1px solid var(--line); background:var(--paper); border-radius:11px;
+    padding:9px 11px; transition:.13s; position:relative;
+  }
+  .opt:hover{border-color:#cdd4d3}
+  .opt .radio{
+    width:17px; height:17px; border-radius:50%; border:2px solid #c7ccc9; flex:0 0 auto; transition:.13s;
+  }
+  .opt-body{flex:1; min-width:0}
+  .opt-sem{font-weight:700; font-size:12px; color:var(--muted); margin-bottom:3px; display:flex; align-items:center; gap:6px}
+  .sem-badge{background:#eceae1; color:#5a615c; border-radius:6px; padding:1px 7px; font-size:11px; font-weight:700}
+  .meets{display:flex; flex-wrap:wrap; gap:5px}
+  .meet{
+    background:var(--card); border:1px solid var(--line); border-radius:7px;
+    padding:2px 8px; font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .opt-del{border:0; background:transparent; color:var(--muted); font-size:14px; width:24px; height:24px; border-radius:6px; flex:0 0 auto}
+  .opt-del:hover{background:var(--conflict-soft); color:var(--conflict)}
+  .course.picked .opt.sel{background:var(--mand-soft); border-color:var(--mand)}
+  .course.picked .opt.sel .radio{border-color:var(--mand); background:radial-gradient(var(--mand) 45%,transparent 48%)}
+  .course.elec.picked .opt.sel{background:var(--elec-soft); border-color:var(--elec)}
+  .course.elec.picked .opt.sel .radio{border-color:var(--elec); background:radial-gradient(var(--elec) 45%,transparent 48%)}
+  .opt.clash-warn{box-shadow:inset 3px 0 0 var(--conflict)}
+
+  .addopt{
+    border:1px dashed var(--line); background:transparent; color:var(--muted);
+    border-radius:11px; padding:8px; font-weight:600; font-size:13px; width:100%;
+  }
+  .addopt:hover{border-color:var(--mand); color:var(--mand)}
+
+  .addcourse{
+    width:100%; border:1px dashed #c8ccc4; background:transparent; color:var(--muted);
+    border-radius:var(--r); padding:14px; font-weight:700; font-size:14px;
+  }
+  .addcourse:hover{border-color:var(--mand); color:var(--mand); background:var(--card)}
+
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+  .tbtn{
+    border:1px solid var(--line); background:var(--card); border-radius:10px;
+    padding:8px 13px; font-weight:600; font-size:13px; color:var(--ink);
+  }
+  .tbtn:hover{background:var(--paper)}
+  .tbtn.danger:hover{border-color:var(--conflict); color:var(--conflict)}
+  .tbtn.suggest{background:var(--mand); color:var(--card); border-color:var(--mand)}
+  .tbtn.suggest:hover{background:var(--mand-ink)}
+  .sug{width:100%; margin-bottom:10px}
+  .sug b{font-size:15px}
+
+  .hint{font-size:12.5px; color:var(--muted); margin:2px 0 16px; display:flex; gap:8px; align-items:baseline}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:3px;flex:0 0 auto}
+  .dot.m{background:var(--mand)} .dot.e{background:var(--elec)} .dot.c{background:var(--conflict)}
+
+  /* ---------- Modal ---------- */
+  .scrim{position:fixed; inset:0; background:rgba(24,29,34,.42); backdrop-filter:blur(2px); z-index:80; display:none; align-items:center; justify-content:center; padding:16px}
+  .scrim.on{display:flex}
+  .modal{
+    background:var(--card); border-radius:16px; box-shadow:0 24px 60px rgba(0,0,0,.28);
+    width:min(520px,100%); max-height:90vh; overflow:auto; padding:22px;
+  }
+  .modal h3{font-family:var(--serif); margin:0 0 4px; font-size:20px}
+  .modal .msub{color:var(--muted); font-size:13px; margin:0 0 16px}
+  .field{margin-bottom:14px}
+  .field label{display:block; font-weight:700; font-size:13px; margin-bottom:6px}
+  .field input,.field select{
+    width:100%; border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+    font-family:inherit; font-size:14px; background:var(--paper); color:var(--ink);
+  }
+  .field input:focus,.field select:focus{outline:none; border-color:var(--mand)}
+  .seg-in{display:inline-flex; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:3px}
+  .seg-in button{border:0; background:transparent; padding:8px 18px; border-radius:7px; font-weight:700; color:var(--muted)}
+  .seg-in button.on{background:var(--card); color:var(--ink); box-shadow:var(--shadow)}
+  .meet-row{display:flex; gap:7px; align-items:center; margin-bottom:8px}
+  .meet-row select,.meet-row input{padding:8px 9px; font-size:13px}
+  .meet-row .rm{border:0;background:var(--conflict-soft);color:var(--conflict);border-radius:7px;width:32px;height:36px;font-size:15px;flex:0 0 auto}
+  .addmeet{border:1px dashed var(--line); background:transparent; color:var(--muted); border-radius:9px; padding:8px; font-weight:600; font-size:13px; width:100%}
+  .addmeet:hover{border-color:var(--mand); color:var(--mand)}
+  .modal-actions{display:flex; gap:10px; justify-content:flex-start; margin-top:20px}
+  .btn-primary{border:0; background:var(--ink); color:var(--card); border-radius:10px; padding:11px 22px; font-weight:700; font-size:14px}
+  .btn-primary:hover{opacity:.88}
+  .btn-primary.danger{background:var(--conflict)}
+  .btn-primary.danger:hover{background:#a53124}
+  .form-err{
+    background:var(--conflict-soft); border:1px solid #eec8c2; color:#8a2c20;
+    border-radius:10px; padding:9px 12px; font-size:13px; font-weight:600; margin-top:6px;
+  }
+  .btn-ghost{border:1px solid var(--line); background:transparent; border-radius:10px; padding:11px 20px; font-weight:600; font-size:14px; color:var(--ink)}
+  .btn-ghost:hover{background:var(--paper)}
+
+  .save-note{position:fixed; inset-block-end:calc(18px + env(safe-area-inset-bottom,0px)); inset-inline-start:18px; background:var(--ink); color:var(--card); padding:9px 16px; border-radius:10px; font-size:13px; font-weight:600; opacity:0; transform:translateY(8px); transition:.25s; z-index:90; pointer-events:none}
+  .save-note.show{opacity:1; transform:translateY(0)}
+
+  @media print{
+    .top,.catalog,.cal-head .seg .cnt,.tbtn,.addcourse,.addopt,.del,.opt-del,.save-note,.bb-acts,.bb-nav,.tabs-bar{display:none!important}
+    body{background:#fff; height:auto; display:block; overflow:visible}
+    .wrap{grid-template-columns:1fr; display:block}
+    .cal-col,.catalog{position:static; overflow:visible}
+    .who,.picker{display:none!important}
+    .cal-card{box-shadow:none; border-color:#ccc}
+    .print-title{display:block!important}
+    .exams{box-shadow:none; border-color:#ccc; break-inside:avoid}
+    .ex-head .seg{display:none!important}
+    .ex-row{break-inside:avoid}
+  }
+  .print-title{display:none; font-family:var(--serif); font-size:22px; font-weight:700; margin:0 0 12px}
+
+  /* ---------- Profiles (Netflix-style "who's planning?") ---------- */
+  .top-side{display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap}
+  .who{
+    display:flex; align-items:center; gap:8px; border:1px solid var(--line); background:var(--paper);
+    border-radius:11px; padding:6px 12px 6px 8px; color:var(--ink); font-weight:700; font-size:13.5px;
+  }
+  .who:hover{border-color:var(--mand)}
+  .who small{display:block; font-size:10.5px; color:var(--muted); font-weight:600}
+  .avatar{
+    width:32px; height:32px; border-radius:9px; display:grid; place-items:center; flex:none;
+    font-family:var(--serif); font-weight:900; font-size:17px; color:#fff;
+  }
+  .picker{
+    position:fixed; inset:0; z-index:70; background:var(--paper); overflow:auto;
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    padding:max(24px,env(safe-area-inset-top,0px)) 16px 24px; text-align:center;
+  }
+  .picker.on{display:flex}
+  .picker h2{font-family:var(--serif); font-weight:900; font-size:clamp(26px,5vw,40px); margin:0 0 6px}
+  .picker .psub{color:var(--muted); margin:0 0 28px; font-size:14px}
+  .pgrid{display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(14px,3vw,26px); max-width:760px}
+  .pcard{
+    display:flex; flex-direction:column; align-items:center; gap:9px; width:118px;
+    border:0; background:transparent; color:var(--muted); font-weight:700; font-size:14.5px; padding:0;
+    position:relative;
+  }
+  .pcard .avatar{width:104px; height:104px; border-radius:18px; font-size:46px; border:3px solid transparent; transition:.15s}
+  .pcard:hover .avatar,.pcard:focus-visible .avatar{border-color:var(--ink); transform:translateY(-2px)}
+  .pcard:hover,.pcard:focus-visible{color:var(--ink); outline:none}
+  .pcard .pname{max-width:118px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .pcard.add .avatar{background:var(--card); color:var(--muted); border:2px dashed var(--line); font-family:var(--sans); font-weight:400}
+  .pcard.add:hover .avatar{border-color:var(--mand); color:var(--mand)}
+  .picker.manage .pcard:not(.add) .avatar{opacity:.55}
+  .pedit{display:none; gap:5px}
+  .picker.manage .pedit{display:flex}
+  .pedit span{border:1px solid var(--line); background:var(--card); border-radius:8px; padding:3px 9px; font-size:12px; color:var(--ink)}
+  .pedit span.del{color:var(--conflict)}
+  .pform{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:26px}
+  .pform input{
+    font:inherit; font-size:16px; padding:10px 14px; border-radius:10px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink); width:min(260px,100%);
+  }
+  .pform input:focus{outline:2px solid var(--mand); outline-offset:1px}
+  .picker .pfoot{margin-top:30px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+  .picker .pnote{color:var(--muted); font-size:12px; margin-top:18px; max-width:420px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <span class="kicker">מערכת שעות · תכנון שנתי</span>
+    <h1 id="brand-title">שנה ב׳</h1>
+    <p>בחרי מועד לכל קורס חובה, ושלבי קורסי בחירה. המערכת מסמנת התנגשויות בזמן. <span class="sync-badge" id="sync-badge"></span></p>
+  </div>
+  <div class="top-side">
+    <div class="tally" id="tally"></div>
+    <button class="who" id="who-btn" title="החלפת פרופיל"></button>
+  </div>
+</header>
+
+<!-- PROFILE PICKER -->
+<div class="picker" id="picker" role="dialog" aria-modal="true" aria-labelledby="picker-title"></div>
+
+<div class="tabs-bar"><div class="tabs" id="tabs"></div></div>
+
+<div class="wrap">
+
+  <!-- CATALOG -->
+  <section class="catalog">
+    <div class="hint">
+      <span><span class="dot m"></span> חובה</span>
+      <span><span class="dot e"></span> בחירה</span>
+      <span><span class="dot c"></span> התנגשות</span>
+      <span id="wish-note"></span>
+    </div>
+
+    <div class="group">
+      <h2 class="panel-title">קורסי חובה <span class="num" id="mand-num"></span></h2>
+      <p class="panel-sub">כל קורס — מועד אחד. אם יש שורות סמסטר א׳ ו־ב׳, בוחרים אחת. אפשרויות מרובות באותו סמסטר הן ה־״או״; מפגשים מרובים באפשרות הם ה־״וגם״.</p>
+      <div id="mand-list"></div>
+      <button class="addcourse" data-add="mandatory">+ הוספת קורס חובה</button>
+    </div>
+
+    <div class="group">
+      <h2 class="panel-title">קורסי בחירה <span class="num" id="elec-num"></span></h2>
+      <p class="panel-sub">לשילוב כ־3 קורסים מתוך הרשימה. בחירת מועד לקורס = שילובו במערכת.</p>
+      <div id="elec-list"></div>
+      <button class="addcourse" data-add="elective">+ הוספת קורס בחירה</button>
+    </div>
+
+    <div class="toolbar">
+      <button class="tbtn suggest" id="btn-suggest">✨ הצג את כל האפשרויות</button>
+      <button class="tbtn" id="btn-print">הדפסה / שמירה כ־PDF</button>
+      <button class="tbtn" id="btn-transfer">ייצוא / ייבוא</button>
+      <button class="tbtn" id="btn-tracks">ניהול מסלולים</button>
+      <button class="tbtn" id="btn-report">מה עולה כל בחירה?</button>
+      <button class="tbtn" id="btn-unlock">שחרור נעילות</button>
+      <button class="tbtn danger" id="btn-clear">ניקוי כל הבחירות</button>
+      <button class="tbtn danger" id="btn-reset">שחזור לרשימה המקורית</button>
+    </div>
+  </section>
+
+  <!-- CALENDAR -->
+  <section class="cal-col">
+    <p class="print-title" id="print-title"></p>
+    <div class="cal-head">
+      <h2 class="panel-title" style="margin:0">השבוע שלי</h2>
+      <div class="seg" id="sem-seg">
+        <button data-sem="א" class="on">סמסטר א׳ <span class="cnt" id="cnt-a"></span></button>
+        <button data-sem="ב">סמסטר ב׳ <span class="cnt" id="cnt-b"></span></button>
+      </div>
+    </div>
+    <div class="browse hide" id="browse-bar"></div>
+    <div class="cal-card">
+      <div class="grid"><div class="grid-inner" id="cal"></div></div>
+    </div>
+    <div class="clash-list" id="clash-list"></div>
+    <div class="exams" id="exam-panel"></div>
+  </section>
+</div>
+
+<!-- MODAL -->
+<div class="scrim" id="scrim">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div class="save-note" id="savenote">נשמר ✓</div>
+
+<script>
+/* ===================== DATA ===================== */
+const DAYS = ["ראשון","שני","שלישי","רביעי","חמישי"];
+const DAY_IDX = {"ראשון":0,"שני":1,"שלישי":2,"רביעי":3,"חמישי":4};
+let uid = 1; const nid = () => "id"+(uid++)+"_"+Math.random().toString(36).slice(2,6);
+
+function C(name,type,options,track){ return {id:nid(),name,type,track:track||"law",options:options.map(o=>({id:nid(),...o}))}; }
+const LAW_HINT=["דיון","נזיקין","קניין","תאגידים","מיסים","ראיות","תחרות","חוזים","עבודה","חוקתי","מנהלי","פלילי"];
+const TRACK_COLORS=[
+  {ink:"#5b46a0",soft:"#EDE9F7",line:"#d5cbee"},   // purple
+  {ink:"#8a6224",soft:"#FBF0E2",line:"#eddcc2"},   // amber
+  {ink:"#1f6b56",soft:"#E3F1EC",line:"#c6e2d8"},   // green
+  {ink:"#2b5f8f",soft:"#E7F0F8",line:"#cbdcec"},   // blue
+  {ink:"#8f2f52",soft:"#FAE8EE",line:"#eecad6"},   // rose
+  {ink:"#5c6470",soft:"#EEF0F2",line:"#d9dde1"},   // slate
+];
+function defaultTracks(){
+  return [ {id:"law", name:"משפטים", icon:"⚖", ci:0},
+           {id:"acct",name:"חשבונאות", icon:"📊", ci:1} ];
+}
+function trackById(id){
+  const t=(state.tracks||[]).find(x=>x.id===id);
+  return t || (state.tracks&&state.tracks[0]) || {id:"?",name:"ללא מסלול",icon:"•",ci:5};
+}
+function trackColor(t){ return TRACK_COLORS[(t&&t.ci)||0] || TRACK_COLORS[0]; }
+function inferTrack(name,type){
+  if(type==="elective") return "law";
+  return LAW_HINT.some(w=>name.includes(w)) && !name.includes("יסודות המיסים") && !name.includes("מיסים למתקדמים") ? "law" : "acct";
+}
+function M(day,s,e){ return {day:DAY_IDX[day], start:s, end:e}; }
+
+function DEFAULT_COURSES(){
+  return [
+    // ---- MANDATORY ----
+    C("דיון אזרחי","mandatory",[
+      {semester:"א",meetings:[M("שני","14:00","16:30"),M("שלישי","10:30","13:15")]},
+      {semester:"ב",meetings:[M("שני","16:00","18:45"),M("רביעי","9:30","12:15")]},
+    ]),
+    C("דיני נזיקין","mandatory",[
+      {semester:"א",meetings:[M("ראשון","12:30","15:00"),M("שלישי","13:30","16:00")]},
+      {semester:"ב",meetings:[M("ראשון","9:30","12:15"),M("שלישי","9:30","12:15")]},
+    ]),
+    C("דיני קניין","mandatory",[
+      {semester:"א",meetings:[M("שני","9:30","12:00"),M("רביעי","9:30","12:00")]},
+      {semester:"ב",meetings:[M("שלישי","12:30","15:15"),M("חמישי","12:30","15:15")]},
+    ]),
+    C("בעיות מדידה","mandatory",[
+      {semester:"א",meetings:[M("ראשון","14:30","19:00")]},
+      {semester:"א",meetings:[M("שני","12:30","17:00")]},
+    ],"acct"),
+    C("יסודות המיסים","mandatory",[
+      {semester:"א",meetings:[M("חמישי","8:30","12:00")]},
+      {semester:"א",meetings:[M("שני","17:30","21:00")]},
+    ],"acct"),
+    C("תמחיר","mandatory",[
+      {semester:"א",meetings:[M("רביעי","8:30","10:00"),M("חמישי","12:30","14:00")]},
+      {semester:"א",meetings:[M("רביעי","10:30","12:00"),M("חמישי","14:30","16:00")]},
+    ],"acct"),
+    C("יסודות המימון","mandatory",[
+      {semester:"א",meetings:[M("שלישי","16:30","20:00"),M("רביעי","14:30","15:15")]},
+      {semester:"א",meetings:[M("ראשון","12:30","14:00"),M("שלישי","14:40","16:00"),M("רביעי","15:30","16:15")]},
+      {semester:"ב",meetings:[M("שני","11:30","16:00")]},
+    ],"acct"),
+    C("ביקורת","mandatory",[
+      {semester:"ב",meetings:[M("ראשון","16:30","20:00")]},
+    ],"acct"),
+    C("הטבות לעובדים","mandatory",[
+      {semester:"ב",meetings:[M("שני","16:30","19:00")]},
+      {semester:"ב",meetings:[M("רביעי","8:30","11:00")]},
+    ],"acct"),
+    C("חשבונאות ניהולית","mandatory",[
+      {semester:"ב",meetings:[M("ראשון","13:30","15:00")]},
+      {semester:"ב",meetings:[M("ראשון","15:15","16:00")]}, // day assumed – edit if needed
+    ],"acct"),
+    C("מיסים למתקדמים","mandatory",[
+      {semester:"ב",meetings:[M("חמישי","14:30","19:00")]},
+      {semester:"ב",meetings:[M("רביעי","16:30","21:00")]},
+    ],"acct"),
+    // ---- ELECTIVE ----
+    C("דיני תאגידים","elective",[
+      {semester:"א",meetings:[M("ראשון","12:30","15:15"),M("רביעי","15:30","18:15")]},
+      {semester:"ב",meetings:[M("ראשון","12:30","15:15"),M("רביעי","15:30","18:15")]},
+    ]),
+    C("דיני מיסים","elective",[
+      {semester:"א",meetings:[M("שני","13:00","15:30"),M("רביעי","10:30","13:00")]},
+      {semester:"ב",meetings:[M("שלישי","12:30","15:00"),M("רביעי","10:30","13:00")]},
+    ]),
+    C("קניין רוחני","elective",[
+      {semester:"א",meetings:[M("ראשון","10:30","13:15"),M("שלישי","10:30","13:15")]},
+      {semester:"ב",meetings:[M("שלישי","15:30","19:15"),M("רביעי","14:30","16:15")]},
+    ]),
+    C("דיני תחרות","elective",[
+      {semester:"א",meetings:[M("רביעי","15:30","18:15")]},
+    ]),
+    C("דיני ראיות","elective",[
+      {semester:"א",meetings:[M("ראשון","15:30","18:15"),M("שלישי","15:30","18:15")]},
+      {semester:"ב",meetings:[M("ראשון","15:30","18:15"),M("שלישי","15:30","18:15")]},
+    ]),
+  ];
+}
+
+/* ===================== STATE ===================== */
+let state = { courses:[], picks:{}, sem:"א", locks:{}, tracks:[], freePref:{days:[],require:false}, trackPref:{trackId:null,minA:0,require:false} };
+// workspace = { plans:[{id,name,state}], active:0 } — one per profile
+let ws = { plans:[], active:0 };
+
+/* ---- persistence: everything lives in this browser's localStorage ----
+   Netflix-style profiles: a small profile list, plus one workspace per profile.
+   Nothing leaves the machine; another computer starts with its own profiles. */
+const PROFILES_KEY="mysemester_profiles_v1";
+const LEGACY_WS_KEY="law_acct_plans_ls_v1";       // pre-profiles data, adopted by the first profile
+const wsKey=pid=>"mysemester_ws_"+pid;
+let profiles={list:[], migrated:false};
+let PID=null;
+function lsRead(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return null; } }
+function lsWrite(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+function lsRemove(k){ try{ localStorage.removeItem(k); }catch(e){} }
+function saveProfiles(){ lsWrite(PROFILES_KEY, profiles); }
+function renderSyncBadge(){
+  const el=document.getElementById("sync-badge"); if(el) el.textContent="💾 נשמר בדפדפן הזה";
+}
+function blankState(withDefaults){
+  return { courses: withDefaults?DEFAULT_COURSES():[], picks:{}, sem:"א", locks:{},
+           tracks: defaultTracks(),
+           freePref:{days:[],require:false}, trackPref:{trackId:null,minA:0,require:false} };
+}
+function normalize(st){
+  if(!st) st=blankState(false);
+  if(!st.sem) st.sem="א";
+  if(!st.picks) st.picks={};
+  if(!st.courses) st.courses=[];
+  if(!st.freePref) st.freePref={days:[],require:false};
+  if(!st.tracks || !st.tracks.length) st.tracks=defaultTracks();
+  st.tracks.forEach((t,i)=>{ if(t.ci==null) t.ci=i%6; if(!t.icon) t.icon="•"; });
+  // migrate the old law-only preference into the generic one
+  if(!st.trackPref) st.trackPref={trackId:null,minA:0,require:false};
+  if(st.trackPref.minLawA!==undefined){
+    st.trackPref={trackId:"law", minA:st.trackPref.minLawA||0, require:!!st.trackPref.require};
+  }
+  if(st.trackPref.trackId && !st.tracks.some(t=>t.id===st.trackPref.trackId)) st.trackPref.trackId=null;
+  if(!st.locks) st.locks={};
+  st.courses.forEach(c=>c.options.forEach(o=>{ if(!o.exams) o.exams={}; }));
+  // drop locks whose course or option no longer exists
+  Object.keys(st.locks).forEach(cid=>{
+    const c=st.courses.find(x=>x.id===cid);
+    if(!c){ delete st.locks[cid]; return; }
+    const v=st.locks[cid];
+    if(v!=="any" && !c.options.some(o=>o.id===v)) st.locks[cid]="any";
+  });
+  st.courses.forEach(c=>{
+    if(!c.track) c.track=inferTrack(c.name,c.type);
+    if(!st.tracks.some(t=>t.id===c.track)) c.track=st.tracks[0].id;   // orphaned -> first track
+  });
+  return st;
+}
+let saveTimer=null;
+function writeWS(){
+  if(!PID) return false;
+  if(ws.plans[ws.active]) ws.plans[ws.active].state=state;
+  return lsWrite(wsKey(PID), ws);
+}
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    saveTimer=null;
+    if(!writeWS()) return;
+    const n=document.getElementById('savenote'); n.classList.add('show');
+    setTimeout(()=>n.classList.remove('show'),1100);
+  },250);
+}
+// write any pending change now (before switching profile or leaving the page)
+function flushSave(){ if(saveTimer){ clearTimeout(saveTimer); saveTimer=null; writeWS(); } }
+window.addEventListener("pagehide", flushSave);
+/* ---- plan management ---- */
+function activePlan(){ return ws.plans[ws.active]; }
+function switchPlan(i){
+  if(i===ws.active || !ws.plans[i]) return;
+  ws.plans[ws.active].state=state;          // stash current
+  ws.active=i;
+  state=normalize(ws.plans[i].state);
+  browse={list:[],idx:0,sort:"balanced",filters:null,truncated:false,custom:false};
+  render(); save();
+  toast("עברת ל: "+ws.plans[i].name);
+}
+function addPlan(name,mode){
+  let st;
+  if(mode==="copy")       st=JSON.parse(JSON.stringify(state));               // courses + picks
+  else if(mode==="courses"){ st=JSON.parse(JSON.stringify(state)); st.picks={}; }
+  else if(mode==="fresh") st=blankState(true);                                // default course list
+  else if(typeof mode==="string" && mode.startsWith("seed:")){                 // built-in plan (e.g. Ido)
+    const sp=SEED_PLANS[+mode.slice(5)]; if(!sp) return;
+    st=JSON.parse(JSON.stringify(sp.state)); name=name||sp.name;
+  }
+  else                    st=blankState(false);                               // empty
+  ws.plans[ws.active].state=state;
+  ws.plans.push({id:"p"+Date.now()+Math.floor(Math.random()*999), name:name||("מערכת "+(ws.plans.length+1)), state:normalize(st)});
+  ws.active=ws.plans.length-1;
+  state=ws.plans[ws.active].state;
+  browse={list:[],idx:0,sort:"balanced",filters:null,truncated:false,custom:false};
+  render(); save(); toast("נוצרה מערכת חדשה: "+ws.plans[ws.active].name);
+}
+function renamePlan(i,name){ if(ws.plans[i]&&name){ ws.plans[i].name=name; render(); save(); } }
+function deletePlan(i){
+  if(!ws.plans[i]) return;
+  if(ws.plans.length<=1){ infoModal("לא ניתן למחוק","זו המערכת האחרונה. אפשר ליצור מערכת נוספת ואז למחוק אותה."); return; }
+  const nameAtAsk=ws.plans[i].name;
+  confirmModal("מחיקת מערכת",'למחוק את "'+nameAtAsk+'"? הפעולה בלתי הפיכה.',()=>{
+    // re-validate: the confirmation happens later, state may have moved on
+    if(ws.plans.length<=1 || !ws.plans[i] || ws.plans[i].name!==nameAtAsk) return;
+    ws.plans.splice(i,1);
+    if(ws.active>=ws.plans.length) ws.active=ws.plans.length-1;
+    else if(i<ws.active) ws.active--;
+    if(ws.active<0 || !ws.plans[ws.active]) ws.active=0;
+    state=normalize(ws.plans[ws.active].state);
+    browse={list:[],idx:0,sort:"balanced",filters:null,truncated:false,custom:false};
+    render(); save(); toast("המערכת נמחקה");
+  },{danger:true,yes:"מחיקה"});
+}
+
+/* ===================== HELPERS ===================== */
+const HEB_DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+function dnum(d){ if(!d) return null; const t=Date.parse(d+"T00:00:00Z"); return isNaN(t)?null:Math.floor(t/86400000); }
+function fmtDate(d){
+  if(!d) return "";
+  const dt=new Date(d+"T00:00:00Z");
+  if(isNaN(dt)) return d;
+  return HEB_DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+"."+(dt.getUTCMonth()+1)+"."+String(dt.getUTCFullYear()).slice(2);
+}
+const TOMIN=new Map();
+const toMin = t => { let v=TOMIN.get(t); if(v===undefined){ const [h,m]=t.split(":").map(Number); v=h*60+m; TOMIN.set(t,v);} return v; };
+const fmt = t => { const [h,m]=t.split(":").map(Number); return h+":"+String(m).padStart(2,"0"); };
+
+// options list for one course, but only "selectable" ones honor semester grouping
+function labelFor(course, optIndex){
+  const o = course.options[optIndex];
+  const sameSem = course.options.filter(x=>x.semester===o.semester);
+  const sem = "סמסטר "+o.semester+"׳";
+  if(sameSem.length>1){
+    const rank = sameSem.indexOf(o)+1;
+    return sem+" · אפשרות "+rank;
+  }
+  return sem;
+}
+
+// all selected meetings, tagged with course + semester
+function selectedMeetings(){
+  const out=[];
+  for(const c of state.courses){
+    const oid = state.picks[c.id];
+    if(!oid) continue;
+    const o = c.options.find(x=>x.id===oid);
+    if(!o) continue;
+    o.meetings.forEach(m=> out.push({course:c, opt:o, sem:o.semester, ...m}));
+  }
+  return out;
+}
+
+// weekdays entirely free in BOTH semesters, given current picks
+// exams of the courses currently scheduled, for one semester
+function examsFor(sem,which){
+  const out=[];
+  for(const c of state.courses){
+    const oid=state.picks[c.id]; if(!oid) continue;
+    const o=c.options.find(x=>x.id===oid); if(!o||o.semester!==sem) continue;
+    const ex=o.exams||{};
+    if((which==="a"||which==="both") && ex.a) out.push({course:c,date:ex.a,label:"מועד א",n:dnum(ex.a)});
+    if((which==="b"||which==="both") && ex.b) out.push({course:c,date:ex.b,label:"מועד ב",n:dnum(ex.b)});
+  }
+  return out.filter(x=>x.n!==null).sort((x,y)=>x.n-y.n);
+}
+function lawNow(sem){
+  const out=new Set();
+  const tid=(state.trackPref&&state.trackPref.trackId);
+  if(!tid) return 0;
+  selectedMeetings().forEach(m=>{ if(m.sem===sem && m.course.track===tid && m.course.type==="mandatory") out.add(m.course.id); });
+  return out.size;
+}
+function freeNow(sem){
+  sem=sem||state.sem;
+  const ms=selectedMeetings().filter(m=>m.sem===sem);
+  if(!ms.length) return 0;
+  const used=new Set(ms.map(m=>m.day));
+  let n=0; for(let d=0;d<5;d++) if(!used.has(d)) n++;
+  return n;
+}
+// (semester,day) slots with exactly one meeting, across current selection
+function singleDayList(){
+  const cnt={};
+  selectedMeetings().forEach(m=>{ const k=m.sem+"|"+m.day; cnt[k]=(cnt[k]||0)+1; });
+  const out=[]; for(const k in cnt) if(cnt[k]===1){ const [sem,day]=k.split("|"); out.push({sem,day:+day}); }
+  return out;
+}
+function conflictsFor(sem){
+  const ms = selectedMeetings().filter(m=>m.sem===sem);
+  const clashKeys = new Set();     // "courseId|optId|day|start"
+  const pairs = new Map();         // "cidA|cidB" -> [nameA,nameB]
+  for(let i=0;i<ms.length;i++) for(let j=i+1;j<ms.length;j++){
+    const a=ms[i], b=ms[j];
+    if(a.course.id===b.course.id) continue;
+    if(a.day!==b.day) continue;
+    if(toMin(a.start) < toMin(b.end) && toMin(b.start) < toMin(a.end)){
+      const ka=a.course.id+"|"+a.opt.id+"|"+a.day+"|"+a.start;
+      const kb=b.course.id+"|"+b.opt.id+"|"+b.day+"|"+b.start;
+      clashKeys.add(ka); clashKeys.add(kb);
+      const os=Math.max(toMin(a.start),toMin(b.start)), oe=Math.min(toMin(a.end),toMin(b.end));
+      const pk=[a.course.id,b.course.id].sort().join("|");
+      const rec={a:a.course.name,b:b.course.name,day:a.day,mins:oe-os,
+                 from:Math.floor(os/60)+":"+String(os%60).padStart(2,"0"),
+                 to:Math.floor(oe/60)+":"+String(oe%60).padStart(2,"0")};
+      if(!pairs.has(pk)) pairs.set(pk,rec);
+      else if(pairs.get(pk).mins<rec.mins) pairs.set(pk,rec);
+    }
+  }
+  return {clashKeys, pairs:[...pairs.values()]};
+}
+
+/* ===================== RENDER: CATALOG ===================== */
+function trackBtnHtml(c){
+  const t=trackById(c.track), col=trackColor(t);
+  return `<button class="track-btn" title="שינוי מסלול"
+    style="background:${col.soft};border-color:${col.line};color:${col.ink}">${t.icon} ${escapeHtml(t.name)}</button>`;
+}
+/* ---- export / import: move plans between devices or versions ---- */
+function openTransferModal(){
+  modal.innerHTML=`
+    <h3>ייצוא / ייבוא מערכות</h3>
+    <p class="msub">ייצוא מעתיק את המערכות כטקסט. בייבוא מדביקים את הטקסט במקום אחר — המערכות נוספות כלשוניות חדשות, בלי לדרוס קיימות.</p>
+    <div class="field"><label>ייצוא</label>
+      <div class="seg-in" id="tx-scope"><button data-v="one" class="on">המערכת הנוכחית</button><button data-v="all">כל המערכות</button></div>
+      <textarea id="tx-out" readonly rows="4" class="tx-area"></textarea>
+      <div class="modal-actions" style="margin-top:8px"><button class="btn-primary" id="tx-copy">העתקה</button></div>
+    </div>
+    <div class="field"><label>ייבוא</label>
+      <textarea id="tx-in" rows="4" class="tx-area" placeholder="הדביקי כאן טקסט שיוצא מהאפליקציה"></textarea>
+      <div class="modal-actions" style="margin-top:8px">
+        <button class="btn-primary" id="tx-import">ייבוא</button>
+        <button class="btn-ghost" id="tx-close">סגירה</button>
+      </div>
+    </div>`;
+  scrim.classList.add("on");
+  const out=modal.querySelector("#tx-out");
+  let scope="one";
+  const fill=()=>{
+    if(activePlan()) activePlan().state=state;
+    const payload = scope==="one"
+      ? {kind:"plans", v:1, plans:[activePlan()]}
+      : {kind:"plans", v:1, plans:ws.plans};
+    out.value=JSON.stringify(payload);
+  };
+  fill();
+  modal.querySelectorAll("#tx-scope button").forEach(b=>b.onclick=()=>{
+    modal.querySelectorAll("#tx-scope button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); scope=b.dataset.v; fill();
+  });
+  modal.querySelector("#tx-copy").onclick=async()=>{
+    let ok=false;
+    try{ await navigator.clipboard.writeText(out.value); ok=true; }catch(e){}
+    if(!ok){ try{ out.focus(); out.select(); ok=document.execCommand("copy"); }catch(e){} }
+    toast(ok? "הועתק — הדביקי במקום היעד" : "סמני את הטקסט והעתיקי ידנית");
+  };
+  modal.querySelector("#tx-close").onclick=closeModal;
+  modal.querySelector("#tx-import").onclick=()=>{
+    const res=importPlans(modal.querySelector("#tx-in").value);
+    if(!res.ok){ showFormErr(res.msg); return; }
+    closeModal(); render(); save();
+    toast("יובאו "+res.n+" מערכות");
+  };
+}
+function importPlans(text){
+  let data;
+  try{ data=JSON.parse((text||"").trim()); }catch(e){ return {ok:false,msg:"הטקסט אינו תקין — ודאי שהעתקת אותו במלואו."}; }
+  let plans = Array.isArray(data&&data.plans) ? data.plans
+            : (data&&data.state&&data.name) ? [data] : null;
+  if(!plans||!plans.length) return {ok:false,msg:"לא נמצאו מערכות בטקסט."};
+  plans=plans.filter(pl=>pl&&pl.state&&Array.isArray(pl.state.courses));
+  if(!plans.length) return {ok:false,msg:"המבנה לא מוכר — ייתכן שזה לא ייצוא מהאפליקציה."};
+  if(activePlan()) activePlan().state=state;
+  const names=new Set(ws.plans.map(p=>p.name));
+  for(const pl of plans){
+    let name=pl.name||"מערכת מיובאת";
+    while(names.has(name)) name+=" (מיובא)";
+    names.add(name);
+    ws.plans.push({id:"p"+Date.now()+Math.floor(Math.random()*1e6), name, state:normalize(JSON.parse(JSON.stringify(pl.state)))});
+  }
+  ws.active=ws.plans.length-1; state=ws.plans[ws.active].state;
+  browse={list:[],idx:0,sort:"balanced",filters:null,truncated:false,custom:false};
+  return {ok:true,n:plans.length};
+}
+function openTrackPicker(course){
+  modal.innerHTML=`
+    <h3>מסלול הקורס</h3>
+    <p class="msub">${escapeHtml(course.name)}</p>
+    <div class="daypick" style="flex-direction:column;align-items:stretch">
+      ${state.tracks.map(t=>{const c=trackColor(t);
+        return `<button class="trk-opt ${course.track===t.id?"on":""}" data-t="${t.id}"
+          style="background:${course.track===t.id?c.soft:"var(--paper)"};border-color:${course.track===t.id?c.line:"var(--line)"};color:${c.ink}">
+          ${t.icon} ${escapeHtml(t.name)}</button>`;}).join("")}
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="tp-manage">ניהול מסלולים</button>
+      <button class="btn-ghost" id="tp-cancel">סגירה</button>
+    </div>`;
+  scrim.classList.add("on");
+  modal.querySelector("#tp-cancel").onclick=closeModal;
+  modal.querySelector("#tp-manage").onclick=()=>{ closeModal(); openTrackManager(); };
+  modal.querySelectorAll(".trk-opt").forEach(b=>b.onclick=()=>{
+    course.track=b.dataset.t; closeModal(); render(); save();
+  });
+}
+function openTrackManager(){
+  const counts={}; state.courses.forEach(c=>counts[c.track]=(counts[c.track]||0)+1);
+  modal.innerHTML=`
+    <h3>ניהול מסלולים</h3>
+    <p class="msub">המסלולים שייכים למערכת הזו בלבד — לכל לשונית אפשר מסלולים משלה.</p>
+    <div id="tm-list">
+      ${state.tracks.map((t,i)=>{const c=trackColor(t); return `
+        <div class="tm-row" data-i="${i}">
+          <input class="tm-icon" value="${escapeHtml(t.icon)}" maxlength="2" title="סמל">
+          <input class="tm-name" value="${escapeHtml(t.name)}" placeholder="שם המסלול">
+          <select class="tm-color" title="צבע">
+            ${TRACK_COLORS.map((_,ci)=>`<option value="${ci}" ${t.ci===ci?"selected":""}>צבע ${ci+1}</option>`).join("")}
+          </select>
+          <span class="tm-count" style="color:${c.ink}">${counts[t.id]||0}</span>
+          <button class="tm-del" title="מחיקה">✕</button>
+        </div>`;}).join("")}
+    </div>
+    <button class="addmeet" id="tm-add">+ מסלול חדש</button>
+    <div class="modal-actions">
+      <button class="btn-primary" id="tm-save">שמירה</button>
+      <button class="btn-ghost" id="tm-cancel">ביטול</button>
+    </div>`;
+  scrim.classList.add("on");
+  modal.querySelector("#tm-cancel").onclick=closeModal;
+  modal.querySelector("#tm-add").onclick=()=>{
+    readTracks();
+    state.tracks.push({id:"t"+Date.now()+Math.floor(Math.random()*99),name:"מסלול חדש",icon:"•",ci:state.tracks.length%6});
+    openTrackManager();
+  };
+  modal.querySelectorAll(".tm-del").forEach(b=>b.onclick=()=>{
+    const i=+b.closest(".tm-row").dataset.i;
+    if(state.tracks.length<=1){ showFormErr("חייב להישאר מסלול אחד לפחות."); return; }
+    const removed=state.tracks[i], fallback=state.tracks.find(t=>t.id!==removed.id);
+    readTracks();
+    state.tracks=state.tracks.filter(t=>t.id!==removed.id);
+    state.courses.forEach(c=>{ if(c.track===removed.id) c.track=fallback.id; });
+    if(state.trackPref.trackId===removed.id) state.trackPref={trackId:null,minA:0,require:false};
+    openTrackManager();
+  });
+  function readTracks(){
+    modal.querySelectorAll(".tm-row").forEach(row=>{
+      const i=+row.dataset.i, t=state.tracks[i]; if(!t) return;
+      const nm=row.querySelector(".tm-name").value.trim();
+      if(nm) t.name=nm;
+      const ic=row.querySelector(".tm-icon").value.trim(); t.icon=ic||"•";
+      t.ci=+row.querySelector(".tm-color").value;
+    });
+  }
+  modal.querySelector("#tm-save").onclick=()=>{ readTracks(); closeModal(); render(); save(); toast("המסלולים עודכנו"); };
+}
+function courseCard(c){
+  const picked = !!state.picks[c.id];
+  const clash = state.sem ? null : null;
+  const div = document.createElement("div");
+  div.className = "course "+(c.type==="elective"?"elec":"mand")+(picked?" picked":"")+((state.locks||{})[c.id]?" pinned":"");
+  div.dataset.cid = c.id;
+
+  const head = document.createElement("div");
+  head.className="course-head";
+  head.innerHTML = `<span class="tag"></span>
+    <input class="course-name" value="${escapeHtml(c.name)}" aria-label="שם הקורס">
+    ${c.type==="elective"?`<button class="pin-btn ${(state.locks||{})[c.id]?"on":""}" title="${(state.locks||{})[c.id]?"קורס שאני רוצה לקחת — לחצי לביטול":"סימון כקורס שאני רוצה לקחת"}">📌</button>`:""}
+    ${trackBtnHtml(c)}
+    <span class="picked-flag">משובץ</span>
+    <button class="del" title="מחיקת קורס">✕</button>`;
+  const pinB=head.querySelector(".pin-btn");
+  if(pinB) pinB.addEventListener("click",()=>{
+    if((state.locks||{})[c.id]) delete (state.locks||{})[c.id];
+    else (state.locks||{})[c.id]="any";
+    render(); save();
+  });
+  head.querySelector(".track-btn").addEventListener("click",()=>openTrackPicker(c));
+  head.querySelector(".course-name").addEventListener("change",e=>{ c.name=e.target.value.trim()||c.name; save(); renderCalendar(); });
+  head.querySelector(".del").addEventListener("click",()=>{ 
+    delete state.picks[c.id]; delete (state.locks||{})[c.id];
+    state.courses = state.courses.filter(x=>x.id!==c.id); render(); save();
+  });
+  div.appendChild(head);
+
+  const opts = document.createElement("div");
+  opts.className="opts";
+  // which selected-sem clashes, to warn options
+  const clA = conflictsFor("א").clashKeys, clB = conflictsFor("ב").clashKeys;
+  c.options.forEach((o,idx)=>{
+    const sel = state.picks[c.id]===o.id;
+    const btn = document.createElement("button");
+    btn.className="opt"+(sel?" sel":"");
+    const key = c.id+"|"+o.id+"|";
+    const isClash = sel && [...( o.semester==="א"?clA:clB )].some(k=>k.startsWith(c.id+"|"+o.id+"|"));
+    if(isClash) btn.classList.add("clash-warn");
+    const meets = o.meetings.map(m=>`<span class="meet">${DAYS[m.day]} ${fmt(m.start)}–${fmt(m.end)}</span>`).join("")
+      + ((o.exams&&o.exams.a)?`<span class="meet exam">📅 ${fmtDate(o.exams.a)}</span>`:"")
+      + ((o.exams&&o.exams.b)?`<span class="meet exam b">ב׳ ${fmtDate(o.exams.b)}</span>`:"");
+    btn.innerHTML = `<span class="radio"></span>
+      <span class="opt-body">
+        <span class="opt-sem"><span class="sem-badge">${o.semester}׳</span>${labelFor(c,idx)}</span>
+        <span class="meets">${meets}</span>
+      </span>
+      <button class="opt-exam ${(o.exams&&(o.exams.a||o.exams.b))?"on":""}" title="מועדי בחינה">📅</button>
+      <button class="opt-lock ${(state.locks||{})[c.id]===o.id?"on":""}" title="${(state.locks||{})[c.id]===o.id?"מועד נעול — לחצי לשחרור":"נעילת המועד הזה"}">${(state.locks||{})[c.id]===o.id?"🔒":"🔓"}</button>
+      <button class="opt-del" title="מחיקת אפשרות">✕</button>`;
+    btn.addEventListener("click",e=>{
+      if(e.target.closest(".opt-exam")){ openExamModal(c,o); return; }
+      if(e.target.closest(".opt-lock")){
+        if((state.locks||{})[c.id]===o.id) delete (state.locks||{})[c.id];
+        else { (state.locks||{})[c.id]=o.id; state.picks[c.id]=o.id; }   // locking also schedules it
+        if(browse.list.length) browse.custom=true;
+        render(); save(); return;
+      }
+      if(e.target.closest(".opt-del")){ 
+        c.options = c.options.filter(x=>x.id!==o.id);
+        if(state.picks[c.id]===o.id) delete state.picks[c.id];
+        if((state.locks||{})[c.id]===o.id) delete (state.locks||{})[c.id];
+        render(); save(); return;
+      }
+      if(state.picks[c.id]===o.id) delete state.picks[c.id];
+      else state.picks[c.id]=o.id;
+      if(browse.list.length) browse.custom=true;
+      render(); save();
+    });
+    opts.appendChild(btn);
+  });
+  const add = document.createElement("button");
+  add.className="addopt"; add.textContent="+ הוספת אפשרות / מועד";
+  add.addEventListener("click",()=>openOptionModal(c));
+  opts.appendChild(add);
+  div.appendChild(opts);
+  return div;
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function renderCatalog(){
+  const mand = state.courses.filter(c=>c.type==="mandatory");
+  const elec = state.courses.filter(c=>c.type==="elective");
+  const ml=document.getElementById("mand-list"); ml.innerHTML="";
+  mand.forEach(c=>ml.appendChild(courseCard(c)));
+  const el=document.getElementById("elec-list"); el.innerHTML="";
+  elec.forEach(c=>el.appendChild(courseCard(c)));
+  document.getElementById("mand-num").textContent=mand.length+" קורסים";
+  document.getElementById("elec-num").textContent=elec.length+" קורסים";
+}
+
+/* ===================== RENDER: CALENDAR ===================== */
+const DAY_START=8*60, DAY_END=21*60+30, PXMIN=0.92;
+function renderCalendar(){
+  const cal=document.getElementById("cal");
+  const ms=selectedMeetings().filter(m=>m.sem===state.sem);
+  const clashKeys=conflictsFor(state.sem).clashKeys;
+  const H=(DAY_END-DAY_START)*PXMIN;
+
+  // per-day meeting counts (current semester) to flag single-lecture days
+  const dayCnt=[0,0,0,0,0]; ms.forEach(m=>dayCnt[m.day]++);
+  const anyPicked=selectedMeetings().length>0;
+  const wish=(state.freePref&&state.freePref.days)||[];
+  let html = `<div class="daynames"><div></div>`+DAYS.map((d,i)=>{
+    const solo = dayCnt[i]===1, free = anyPicked && dayCnt[i]===0;
+    const cls = free?'freeday':(solo?'solo':'');
+    const tag = free?'<span class="free-tag">חופשי'+(wish.includes(i)?' ★':'')+'</span>'
+              : (solo?'<span class="solo-tag">בודד</span>':(wish.includes(i)?'<span class="wish-tag">★</span>':''));
+    return `<div class="${cls}">${d}${tag}</div>`;
+  }).join("")+`</div>`;
+  html += `<div class="body" style="height:${H+8}px">`;
+  // hours col
+  html += `<div class="hours">`;
+  for(let h=8;h<=21;h++){ const y=(h*60-DAY_START)*PXMIN; html+=`<span class="hr" style="top:${y}px">${h}:00</span>`; }
+  html += `</div>`;
+  // group by day and pack columns
+  for(let d=0; d<5; d++){
+    html += `<div class="col${anyPicked&&dayCnt[d]===0?' col-free':''}" data-d="${d}">`;
+    for(let h=8;h<=21;h++){ const y=(h*60-DAY_START)*PXMIN; html+=`<div class="line" style="top:${y}px"></div><div class="line half" style="top:${y+30*PXMIN}px"></div>`; }
+    const dayMs = ms.filter(m=>m.day===d).sort((a,b)=>toMin(a.start)-toMin(b.start)||toMin(a.end)-toMin(b.end));
+    const cols = packColumns(dayMs);
+    const maxCol = Math.max(0,...cols.map(c=>c.col))+1;
+    dayMs.forEach((m,i)=>{
+      const col=cols[i].col, top=(toMin(m.start)-DAY_START)*PXMIN, h=Math.max(20,(toMin(m.end)-toMin(m.start))*PXMIN-2);
+      const w=100/maxCol, left=col*w;
+      const isClash=clashKeys.has(m.course.id+"|"+m.opt.id+"|"+m.day+"|"+m.start);
+      const cls=(m.course.type==="elective"?"elec":"mand")+(isClash?" clash":"");
+      html+=`<div class="ev ${cls}" style="top:${top}px;height:${h}px;inset-inline-start:${left}%;width:calc(${w}% - 3px)" data-cid="${m.course.id}">
+        <button class="x" title="הסרה">✕</button>
+        <span class="nm">${escapeHtml(m.course.name)}</span>
+        <span class="tm">${fmt(m.start)}–${fmt(m.end)}</span></div>`;
+    });
+    html += `</div>`;
+  }
+  html += `</div>`;
+  if(ms.length===0) html += `<div class="cal-empty">אין קורסים משובצים בסמסטר ${state.sem}׳ עדיין.<br>בחרי אפשרות מרשימת הקורסים כדי לראות אותה כאן.</div>`;
+  cal.innerHTML=html;
+  cal.querySelectorAll(".ev").forEach(ev=>{
+    ev.addEventListener("click",e=>{
+      const cid=ev.dataset.cid;
+      if(e.target.closest(".x")){ delete state.picks[cid]; render(); save(); }
+    });
+  });
+
+  // conflict list
+  const cl=document.getElementById("clash-list");
+  const pairs=conflictsFor(state.sem).pairs;
+  cl.innerHTML = pairs.length? pairs.map(p=>{
+    const sev = p.mins<=30?"קלה":(p.mins<=60?"בינונית":"כבדה");
+    return `<div class="clash-row ${p.mins<=30?'mild':''}">⚠ <b>${escapeHtml(p.a)}</b> מתנגש עם <b>${escapeHtml(p.b)}</b>
+      <span class="cl-mins">${p.mins} דק׳ · ${DAYS[p.day]} ${p.from}–${p.to} · חפיפה ${sev}</span></div>`;
+  }).join("") : "";
+}
+
+// simple interval graph coloring: assign each meeting a column index avoiding overlap
+function packColumns(sorted){
+  const res=[]; const colEnds=[]; // colEnds[k]=end minute of last placed in column k
+  sorted.forEach(m=>{
+    const s=toMin(m.start), e=toMin(m.end);
+    let placed=-1;
+    for(let k=0;k<colEnds.length;k++){ if(colEnds[k]<=s){ placed=k; colEnds[k]=e; break; } }
+    if(placed<0){ placed=colEnds.length; colEnds.push(e); }
+    res.push({col:placed});
+  });
+  return res;
+}
+
+/* ===================== RENDER: STATUS ===================== */
+function renderStatus(){
+  const mand=state.courses.filter(c=>c.type==="mandatory");
+  const elec=state.courses.filter(c=>c.type==="elective");
+  const mandPicked=mand.filter(c=>state.picks[c.id]).length;
+  const elecPicked=elec.filter(c=>state.picks[c.id]).length;
+  const totalClash=conflictsFor("א").pairs.length+conflictsFor("ב").pairs.length;
+  const singles=singleDayList();
+  const t=document.getElementById("tally");
+  t.innerHTML=`
+    <div class="stat mand"><b>${mandPicked}/${mand.length}</b><span>חובה משובצים</span></div>
+    <div class="stat elec"><b>${elecPicked}</b><span>בחירה משובצים</span></div>
+    <div class="stat warn ${totalClash?'':'ok'}"><b>${totalClash}</b><span>התנגשויות</span></div>
+    <div class="stat warn ${singles.length?'':'ok'}"><b>${singles.length}</b><span>ימים בודדים</span></div>
+    <div class="stat free"><b>${freeNow()}</b><span>חופשי בסמס׳ ${state.sem}׳</span></div>
+    ${(state.trackPref&&state.trackPref.trackId)?`<div class="stat law" style="--tc:${trackColor(trackById(state.trackPref.trackId)).ink}"><b style="color:${trackColor(trackById(state.trackPref.trackId)).ink}">${lawNow("א")}</b><span>${escapeHtml(trackById(state.trackPref.trackId).name)} בא׳</span></div>`:""}
+    ${lockedList().length?`<div class="stat pin"><b>${lockedList().length}</b><span>קורסים נעולים</span></div>`:""}`;
+  // per-semester counts on toggle
+  const ca=selectedMeetings().filter(m=>m.sem==="א"), cb=selectedMeetings().filter(m=>m.sem==="ב");
+  document.getElementById("cnt-a").textContent="("+new Set(ca.map(m=>m.course.id)).size+")";
+  document.getElementById("cnt-b").textContent="("+new Set(cb.map(m=>m.course.id)).size+")";
+}
+
+function renderTabs(){
+  const el=document.getElementById("tabs"); if(!el) return;
+  el.innerHTML = ws.plans.map((pl,i)=>`
+    <button class="tab ${i===ws.active?'on':''}" data-i="${i}">
+      <span class="tab-name">${escapeHtml(pl.name)}</span>
+      <span class="tab-meta">${planSummary(pl)}</span>
+      <span class="tab-menu" data-menu="${i}" title="אפשרויות">⋯</span>
+    </button>`).join("") + `<button class="tab add" id="tab-add" title="מערכת חדשה">+</button>`;
+  el.querySelectorAll(".tab[data-i]").forEach(b=>b.onclick=e=>{
+    if(e.target.closest(".tab-menu")){ openPlanMenu(+e.target.closest(".tab-menu").dataset.menu); return; }
+    switchPlan(+b.dataset.i);
+  });
+  el.querySelector("#tab-add").onclick=openNewPlanModal;
+  const h=document.getElementById("brand-title");
+  if(h && activePlan()) h.textContent=activePlan().name;
+}
+function planSummary(pl){
+  const st=pl.state||{};
+  const n=(st.courses||[]).length;
+  const picked=Object.keys(st.picks||{}).length;
+  return n? `${picked}/${n} משובצים` : "ריקה";
+}
+function openPlanMenu(i){
+  const pl=ws.plans[i];
+  modal.innerHTML=`
+    <h3>${escapeHtml(pl.name)}</h3>
+    <p class="msub">ניהול המערכת הזו.</p>
+    <div class="field"><label>שם</label><input id="pm-name" value="${escapeHtml(pl.name)}"></div>
+    <div class="modal-actions" style="flex-wrap:wrap">
+      <button class="btn-primary" id="pm-save">שמירת שם</button>
+      <button class="btn-ghost" id="pm-dup">שכפול המערכת</button>
+      <button class="btn-ghost" id="pm-del" style="color:var(--conflict)">מחיקה</button>
+      <button class="btn-ghost" id="pm-cancel">סגירה</button>
+    </div>`;
+  scrim.classList.add("on");
+  modal.querySelector("#pm-cancel").onclick=closeModal;
+  modal.querySelector("#pm-save").onclick=()=>{ renamePlan(i,modal.querySelector("#pm-name").value.trim()); closeModal(); };
+  modal.querySelector("#pm-dup").onclick=()=>{ closeModal(); addPlan(pl.name+" (עותק)","copy"); };
+  modal.querySelector("#pm-del").onclick=()=>{ closeModal(); deletePlan(i); };
+}
+function openNewPlanModal(){
+  modal.innerHTML=`
+    <h3>מערכת חדשה</h3>
+    <p class="msub">לתכנון שנה נוספת, או להשוואה בין תרחישים — בלי לגעת במה שכבר בנית.</p>
+    <div class="field"><label>שם</label><input id="np-name" placeholder="לדוגמה: שנה ג׳"></div>
+    <div class="field"><label>נקודת התחלה</label>
+      <button class="btn-ghost sug" data-m="empty" style="text-align:start;padding:13px">
+        <b>ריקה</b><br><span style="color:var(--muted);font-size:12.5px">בלי קורסים — להזנת קורסים של שנה אחרת</span></button>
+      <button class="btn-ghost sug" data-m="courses" style="text-align:start;padding:13px">
+        <b>אותם קורסים, בלי שיבוץ</b><br><span style="color:var(--muted);font-size:12.5px">מעתיק את רשימת הקורסים ומאפס את הבחירות</span></button>
+      <button class="btn-ghost sug" data-m="copy" style="text-align:start;padding:13px">
+        <b>העתק מלא</b><br><span style="color:var(--muted);font-size:12.5px">קורסים + שיבוץ — להשוואת תרחישים</span></button>
+      <button class="btn-ghost sug" data-m="fresh" style="text-align:start;padding:13px">
+        <b>רשימת שנה ב׳ המקורית</b><br><span style="color:var(--muted);font-size:12.5px">הקורסים מהקובץ שהעלית</span></button>
+      ${SEED_PLANS.map((sp,k)=>`<button class="btn-ghost sug" data-m="seed:${k}" style="text-align:start;padding:13px">
+        <b>${escapeHtml(sp.name)}</b><br><span style="color:var(--muted);font-size:12.5px">המערכת השמורה בקובץ, עם הקורסים והשיבוץ שלה</span></button>`).join("")}
+    </div>
+    <div class="modal-actions"><button class="btn-ghost" id="np-cancel">ביטול</button></div>`;
+  scrim.classList.add("on");
+  modal.querySelector("#np-cancel").onclick=closeModal;
+  modal.querySelectorAll(".sug").forEach(b=>b.onclick=()=>{
+    const nm=modal.querySelector("#np-name").value.trim();
+    closeModal(); addPlan(nm, b.dataset.m);
+  });
+}
+function renderExams(){
+  const el=document.getElementById("exam-panel"); if(!el) return;
+  const which=state.examView||"a";
+  const list=examsFor(state.sem,which);
+  const anyDefined=state.courses.some(c=>c.options.some(o=>o.exams&&(o.exams.a||o.exams.b)));
+  if(!anyDefined){
+    el.innerHTML=`<div class="ex-empty">עדיין לא הוזנו מועדי בחינה. לחצי על 📅 ליד מועד של קורס כדי להוסיף תאריך מבחן, והוא יופיע כאן.</div>`;
+    return;
+  }
+  const scheduledNoDate=state.courses.filter(c=>{
+    const oid=state.picks[c.id]; if(!oid) return false;
+    const o=c.options.find(x=>x.id===oid);
+    return o && o.semester===state.sem && !(o.exams&&(o.exams.a||o.exams.b));
+  }).map(c=>c.name);
+
+  let rows="", warn=0;
+  list.forEach((x,i)=>{
+    const prev=i>0?list[i-1]:null;
+    const gap=prev? x.n-prev.n : null;
+    let cls="", note="";
+    if(gap===0){ cls="same"; note="באותו יום!"; warn++; }
+    else if(gap!==null && gap<=2){ cls="tight"; note=gap+" ימים אחרי הקודם"; warn++; }
+    else if(gap!==null) note=gap+" ימים אחרי הקודם";
+    rows+=`<div class="ex-row ${cls}">
+      <span class="ex-date">${fmtDate(x.date)}</span>
+      <span class="ex-name">${escapeHtml(x.course.name)}<span class="ex-lbl">${x.label}</span></span>
+      <span class="ex-gap">${note}</span></div>`;
+  });
+  const span = list.length>1 ? (list[list.length-1].n-list[0].n)+" ימים" : "—";
+  el.innerHTML=`
+    <div class="ex-head">
+      <b>לוח מבחנים · סמסטר ${state.sem}׳</b>
+      <div class="seg" id="ex-toggle">
+        <button data-w="a" class="${which==="a"?"on":""}">מועד א</button>
+        <button data-w="b" class="${which==="b"?"on":""}">מועד ב</button>
+        <button data-w="both" class="${which==="both"?"on":""}">שניהם</button>
+      </div>
+    </div>
+    ${list.length?`<div class="ex-sum">
+        <span class="chip">${list.length} מבחנים</span>
+        <span class="chip">פרוסים על ${span}</span>
+        ${warn?`<span class="chip bad">${warn} צפופים</span>`:'<span class="chip ok">מרווחים סבירים</span>'}
+      </div>${rows}`
+      :`<div class="ex-empty">אין מבחנים מוזנים לקורסים המשובצים בסמסטר ${state.sem}׳.</div>`}
+    ${scheduledNoDate.length?`<div class="ex-missing">חסר תאריך: ${escapeHtml(scheduledNoDate.join(", "))}</div>`:""}`;
+  el.querySelectorAll("#ex-toggle button").forEach(b=>b.onclick=()=>{
+    state.examView=b.dataset.w; renderExams(); save();
+  });
+}
+function renderWish(){
+  const el=document.getElementById("wish-note"); if(!el) return;
+  const w=(state.freePref&&state.freePref.days)||[];
+  const tpr=state.trackPref||{};
+  const lp=tpr.trackId? (tpr.minA||0) : 0;
+  let html="";
+  const ws_=(state.freePref&&state.freePref.sem)||"any";
+  if(w.length) html+=`<span class="wish-pill">★ ${w.map(d=>DAYS[d]).join(", ")} חופשי${ws_!=="any"?" בסמסטר "+ws_+"׳":""} <button id="wish-clear" title="ביטול">✕</button></span>`;
+  if(lp){ const t=trackById(tpr.trackId), c=trackColor(t);
+    html+=`<span class="wish-pill" style="background:${c.soft};border-color:${c.line};color:${c.ink}">${t.icon} ${lp}+ ${escapeHtml(t.name)} בא׳ <button id="law-clear" title="ביטול">✕</button></span>`; }
+  el.innerHTML=html;
+  const b=document.getElementById("wish-clear");
+  if(b) b.onclick=()=>{ state.freePref={days:[],require:false}; if(browse.filters){browse.filters.freeDays=[];browse.filters.freeRequire=false;} render(); save(); };
+  const b2=document.getElementById("law-clear");
+  if(b2) b2.onclick=()=>{ state.trackPref={trackId:null,minA:0,require:false};
+    if(browse.filters){browse.filters.trackId=null;browse.filters.minA=0;browse.filters.trackRequire=false;} render(); save(); };
+}
+function render(){ renderTabs(); renderCatalog(); renderCalendar(); renderStatus(); renderExams(); renderWish();
+  if(typeof renderBrowseBar==="function") renderBrowseBar();
+  const pn=(activePlan()&&activePlan().name)||"מערכת";
+  document.getElementById("print-title").textContent = pn+" — סמסטר "+state.sem+"׳";
+}
+
+/* ===================== MODALS ===================== */
+const scrim=document.getElementById("scrim"), modal=document.getElementById("modal");
+function closeModal(){ scrim.classList.remove("on"); modal.innerHTML=""; }
+scrim.addEventListener("click",e=>{ if(e.target===scrim) closeModal(); });
+
+function showFormErr(msg){
+  let e=modal.querySelector(".form-err");
+  if(!e){ e=document.createElement("div"); e.className="form-err"; modal.querySelector(".modal-actions").before(e); }
+  e.textContent=msg;
+}
+function meetRowHtml(day=0,s="09:00",e="10:30"){
+  const opts=DAYS.map((d,i)=>`<option value="${i}" ${i===day?"selected":""}>${d}</option>`).join("");
+  return `<div class="meet-row">
+    <select class="mr-day">${opts}</select>
+    <input class="mr-s" type="time" value="${s}">
+    <span style="color:var(--muted)">–</span>
+    <input class="mr-e" type="time" value="${e}">
+    <button class="rm" title="הסרה">✕</button></div>`;
+}
+function wireMeetRows(container){
+  container.querySelectorAll(".rm").forEach(b=>b.onclick=()=>{ 
+    if(container.querySelectorAll(".meet-row").length>1) b.closest(".meet-row").remove();
+  });
+}
+
+function openExamModal(course,opt){
+  const ex=opt.exams||{};
+  modal.innerHTML=`
+    <h3>מועדי בחינה</h3>
+    <p class="msub">${escapeHtml(course.name)} · סמסטר ${opt.semester}׳<br>
+      ${opt.meetings.map(m=>DAYS[m.day]+" "+fmt(m.start)+"–"+fmt(m.end)).join(", ")}</p>
+    <div class="field"><label>מועד א</label><input type="date" id="ex-a" value="${ex.a||""}"></div>
+    <div class="field"><label>מועד ב</label><input type="date" id="ex-b" value="${ex.b||""}"></div>
+    <p class="msub">התאריכים משויכים למועד הזה של הקורס, כך שבחירת סמסטר אחר תציג את המבחנים שלו.</p>
+    <div class="modal-actions">
+      <button class="btn-primary" id="ex-save">שמירה</button>
+      <button class="btn-ghost" id="ex-clear">ניקוי</button>
+      <button class="btn-ghost" id="ex-cancel">ביטול</button>
+    </div>`;
+  scrim.classList.add("on");
+  modal.querySelector("#ex-cancel").onclick=closeModal;
+  modal.querySelector("#ex-clear").onclick=()=>{ opt.exams={}; closeModal(); render(); save(); };
+  modal.querySelector("#ex-save").onclick=()=>{
+    const a=modal.querySelector("#ex-a").value, b=modal.querySelector("#ex-b").value;
+    if(a&&b&&dnum(b)<dnum(a)){ showFormErr("מועד ב׳ מוקדם ממועד א׳ — בדקי את התאריכים."); return; }
+    opt.exams={}; if(a) opt.exams.a=a; if(b) opt.exams.b=b;
+    closeModal(); render(); save(); toast("מועדי הבחינה נשמרו");
+  };
+}
+function openOptionModal(course){
+  modal.innerHTML=`
+    <h3>הוספת אפשרות ל־${escapeHtml(course.name)}</h3>
+    <p class="msub">אפשרות = מועד אחד לבחירה. הוסיפי כמה מפגשים אם הם ״וגם״ (נלקחים יחד).</p>
+    <div class="field"><label>סמסטר</label>
+      <div class="seg-in" id="opt-sem"><button data-s="א" class="on">א׳</button><button data-s="ב">ב׳</button></div>
+    </div>
+    <div class="field"><label>מפגשים</label><div id="meet-rows">${meetRowHtml()}</div>
+      <button class="addmeet" id="add-meet">+ עוד מפגש (וגם)</button></div>
+    <div class="field"><label>מועדי בחינה (לא חובה)</label>
+      <div class="meet-row"><span style="font-size:12px;color:var(--muted);min-width:46px">מועד א</span><input type="date" id="no-exa">
+      <span style="font-size:12px;color:var(--muted);min-width:46px">מועד ב</span><input type="date" id="no-exb"></div></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="save-opt">הוספה</button>
+      <button class="btn-ghost" id="cancel-opt">ביטול</button>
+    </div>`;
+  scrim.classList.add("on");
+  let sem="א";
+  modal.querySelectorAll("#opt-sem button").forEach(b=>b.onclick=()=>{ 
+    modal.querySelectorAll("#opt-sem button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); sem=b.dataset.s; });
+  const rows=modal.querySelector("#meet-rows"); wireMeetRows(rows);
+  modal.querySelector("#add-meet").onclick=()=>{ rows.insertAdjacentHTML("beforeend",meetRowHtml()); wireMeetRows(rows); };
+  modal.querySelector("#cancel-opt").onclick=closeModal;
+  modal.querySelector("#save-opt").onclick=()=>{
+    const meetings=[...rows.querySelectorAll(".meet-row")].map(r=>({
+      day:+r.querySelector(".mr-day").value,
+      start:r.querySelector(".mr-s").value||"09:00",
+      end:r.querySelector(".mr-e").value||"10:30"
+    })).filter(m=>toMin(m.end)>toMin(m.start));
+    if(!meetings.length){ showFormErr("נא להוסיף מפגש תקין — שעת הסיום חייבת להיות אחרי שעת ההתחלה."); return; }
+    const exams={}; 
+    const exa=modal.querySelector("#no-exa"), exb=modal.querySelector("#no-exb");
+    if(exa&&exa.value) exams.a=exa.value;
+    if(exb&&exb.value) exams.b=exb.value;
+    course.options.push({id:nid(),semester:sem,meetings,exams});
+    closeModal(); render(); save();
+  };
+}
+
+function openCourseModal(type){
+  const isElec=type==="elective";
+  modal.innerHTML=`
+    <h3>הוספת קורס ${isElec?"בחירה":"חובה"}</h3>
+    <p class="msub">אפשר להוסיף מועדים אחרי היצירה.</p>
+    <div class="field"><label>שם הקורס</label><input id="c-name" placeholder="לדוגמה: דיני עבודה"></div>
+    <div class="field"><label>מסלול</label>
+      <div class="seg-in" id="c-track">${state.tracks.map((t,i)=>`<button data-t="${t.id}" class="${i===0?"on":""}">${t.icon} ${escapeHtml(t.name)}</button>`).join("")}</div>
+    </div>
+    <div class="field"><label>מועד ראשון (אפשר להוסיף עוד אח״כ)</label>
+      <div class="seg-in" id="c-sem"><button data-s="א" class="on">א׳</button><button data-s="ב">ב׳</button></div>
+    </div>
+    <div class="field"><div id="c-meets">${meetRowHtml()}</div>
+      <button class="addmeet" id="c-addmeet">+ עוד מפגש (וגם)</button></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="c-save">הוספת קורס</button>
+      <button class="btn-ghost" id="c-cancel">ביטול</button>
+    </div>`;
+  scrim.classList.add("on");
+  let sem="א", track=(state.tracks[0]||{}).id;
+  modal.querySelectorAll("#c-track button").forEach(b=>b.onclick=()=>{
+    modal.querySelectorAll("#c-track button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); track=b.dataset.t; });
+  modal.querySelectorAll("#c-sem button").forEach(b=>b.onclick=()=>{ modal.querySelectorAll("#c-sem button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); sem=b.dataset.s; });
+  const rows=modal.querySelector("#c-meets"); wireMeetRows(rows);
+  modal.querySelector("#c-addmeet").onclick=()=>{ rows.insertAdjacentHTML("beforeend",meetRowHtml()); wireMeetRows(rows); };
+  modal.querySelector("#c-cancel").onclick=closeModal;
+  modal.querySelector("#c-save").onclick=()=>{
+    const name=modal.querySelector("#c-name").value.trim();
+    if(!name){ showFormErr("נא להזין שם קורס."); return; }
+    const meetings=[...rows.querySelectorAll(".meet-row")].map(r=>({
+      day:+r.querySelector(".mr-day").value, start:r.querySelector(".mr-s").value||"09:00", end:r.querySelector(".mr-e").value||"10:30"
+    })).filter(m=>toMin(m.end)>toMin(m.start));
+    const options = meetings.length? [{id:nid(),semester:sem,meetings}] : [];
+    state.courses.push({id:nid(),name,type,track,options});
+    closeModal(); render(); save();
+  };
+}
+
+/* ===================== AUTO SCHEDULER ===================== */
+let CLASH_CACHE=new Map();
+// numeric matrices: option index -> index, avoids millions of string keys
+let MX_ON=false, MX_N=0, MX_CLASH=null, MX_OV=null;
+function rawOverlap(o1,o2){
+  if(o1.semester!==o2.semester) return 0;
+  let t=0;
+  for(const m1 of o1.meetings) for(const m2 of o2.meetings){
+    if(m1.day!==m2.day) continue;
+    const s=Math.max(toMin(m1.start),toMin(m2.start)), e=Math.min(toMin(m1.end),toMin(m2.end));
+    if(e>s) t+=e-s;
+  }
+  return t;
+}
+function buildMatrices(){
+  const opts=[];
+  state.courses.forEach(c=>c.options.forEach(o=>{
+    Object.defineProperty(o,"_ix",{value:opts.length,enumerable:false,configurable:true,writable:true});
+    opts.push(o);
+  }));
+  MX_N=opts.length;
+  MX_CLASH=new Uint8Array(MX_N*MX_N);
+  MX_OV=new Int32Array(MX_N*MX_N);
+  for(let i=0;i<MX_N;i++) for(let j=i+1;j<MX_N;j++){
+    const ov=rawOverlap(opts[i],opts[j]);
+    MX_OV[i*MX_N+j]=MX_OV[j*MX_N+i]=ov;
+    if(ov>0){ MX_CLASH[i*MX_N+j]=MX_CLASH[j*MX_N+i]=1; }
+  }
+  MX_ON=true;
+}
+function optClash(o1,o2){
+  if(MX_ON && o1._ix!==undefined && o2._ix!==undefined && o1._ix<MX_N && o2._ix<MX_N)
+    return MX_CLASH[o1._ix*MX_N+o2._ix]===1;
+  return rawOverlap(o1,o2)>0;
+}
+function pairConflicts(list){
+  let n=0; const pairs=[];
+  for(let i=0;i<list.length;i++) for(let j=i+1;j<list.length;j++)
+    if(list[i].course.id!==list[j].course.id && optClash(list[i].opt,list[j].opt)){
+      n++; pairs.push({a:list[i].course.name,b:list[j].course.name});
+    }
+  return {n,pairs};
+}
+// number of (semester,day) slots that hold exactly one meeting = "single-lecture days"
+function singleDaysOf(list){
+  const cnt={};
+  for(const it of list) for(const m of it.opt.meetings){ const k=it.opt.semester+"|"+m.day; cnt[k]=(cnt[k]||0)+1; }
+  let s=0; for(const k in cnt) if(cnt[k]===1) s++; return s;
+}
+// assignments of every mandatory course, allowing up to maxConf internal overlaps
+function mandatoryCores(maxConf=0,cap=3000){
+  const mand=state.courses.filter(c=>c.type==="mandatory");
+  const cores=[];
+  (function bt(i,chosen,conf){
+    if(cores.length>=cap) return;
+    if(i===mand.length){ cores.push({list:chosen.slice(),conf}); return; }
+    const c=mand[i];
+    if(!c.options.length){ bt(i+1,chosen,conf); return; }
+    const lk=(state.locks||{})[c.id];
+    const opts = (lk && lk!=="any") ? c.options.filter(o=>o.id===lk) : c.options;
+    for(const o of opts){
+      let add=0; for(const ch of chosen) if(optClash(o,ch.opt)) add++;
+      if(conf+add<=maxConf) bt(i+1,chosen.concat([{course:c,opt:o}]),conf+add);
+    }
+  })(0,[],0);
+  return cores;
+}
+// free weekdays per semester
+function freeDaysOf(list,sem){
+  const used=new Set();
+  list.forEach(it=>{ if(it.opt.semester===sem) it.opt.meetings.forEach(m=>used.add(m.day)); });
+  const f=[]; for(let d=0;d<5;d++) if(!used.has(d)) f.push(d);
+  return f;
+}
+// ---- enumerate EVERY valid schedule matching the filters ----
+const SOL_CAP=15000;
+function enumerateSolutions(f){
+  buildMatrices();
+  const HAS_EXAMS=state.courses.some(c=>c.options.some(o=>o.exams&&o.exams.a));
+  const cores=mandatoryCores(f.maxConf);
+  const elec=state.courses.filter(c=>c.type==="elective");
+  const locks=state.locks||{};
+  const pinned=elec.filter(c=>locks[c.id]);                    // electives that MUST be included
+  const minNe=pinned.length;
+  let nes = (f.electives==="any") ? Array.from({length:elec.length+1},(_,i)=>i)
+                                  : [Math.max(minNe, Math.min(+f.electives,elec.length))];
+  nes = nes.filter(n=>n>=minNe);
+  // only combos containing every pinned elective
+  const combosOf=(k)=>{const r=[];(function bt(s,a){
+      if(a.length===k){ if(pinned.every(pc=>a.includes(pc))) r.push(a.slice()); return; }
+      for(let i=s;i<elec.length;i++){a.push(elec[i]);bt(i+1,a);a.pop();}
+    })(0,[]);return r;};
+  const optsFor=(c)=>{ const lk=locks[c.id]; return (lk&&lk!=="any")? c.options.filter(o=>o.id===lk) : c.options; };
+  const out=[]; let truncated=false;
+  for(const ne of nes){
+    for(const core of cores){
+      for(const sel of combosOf(ne)){
+        let stop=false;
+        (function bt(i,chosen,conf){
+          if(stop) return;
+          if(i===sel.length){
+            if(conf>f.maxConf) return;
+            const all=core.list.concat(chosen);
+            // conflict pairs are only needed for display — compute them on first access
+            const pc={n:conf, _p:null, get pairs(){ if(!this._p) this._p=pairConflicts(all).pairs; return this._p; }};
+            const sd=singleDaysOf(all);
+            if(sd>f.maxSingle) return;
+            const fa=freeDaysOf(all,"א"), fb=freeDaysOf(all,"ב");
+            const wanted=f.freeDays||[];
+            const fsem=f.freeSem||"any";          // "any" | "א" | "ב"
+            let hit=0, missing=false;
+            for(const d of wanted){
+              const inA=fa.includes(d), inB=fb.includes(d);
+              if(fsem==="א"){ hit+=inA?2:0; if(!inA) missing=true; }
+              else if(fsem==="ב"){ hit+=inB?2:0; if(!inB) missing=true; }
+              else { hit += (inA?1:0)+(inB?1:0); if(!inA && !inB) missing=true; }
+            }
+            if(f.freeRequire && missing) return;
+            const a=all.filter(x=>x.opt.semester==="א").length;
+            // law-track courses placed in semester א
+            const tid=f.trackId;
+            const lawA = tid? core.list.filter(x=>x.course.track===tid&&x.opt.semester==="א").length : 0;
+            const lawAe= tid? chosen.filter(x=>x.course.track===tid&&x.opt.semester==="א").length : 0;
+            const minLaw=f.minA||0;
+            if(f.trackRequire && minLaw && lawA<minLaw) return;
+            const lawHit = minLaw ? (lawA>=minLaw?1:0) : 0;
+            out.push({core:core.list,elec:chosen.slice(),pc,sd,ne:chosen.length,lawA,lawAe,lawHit,
+                      imb:Math.abs(a-(all.length-a)), days:campusDays(all),
+                      late:latestEnd(all), lateDays:lateDayCount(all),
+                      ov: pc.n? overlapMinutes(all) : 0,
+                      ...(HAS_EXAMS?(()=>{const es=examStats(all);
+                          return {exSame:es.same, exGap:es.gap, exCount:es.count};})()
+                                   :{exSame:0, exGap:null, exCount:0}),
+                      fa,fb,free:fa.length+fb.length,hit,want:wanted.length,
+                      ...(()=>{const g=gapStats(all); return {gap:g.total, maxGap:g.maxGap};})(),
+                      pm:pmMinutes(all)});
+            if(out.length>=SOL_CAP){ truncated=true; stop=true; }
+            return;
+          }
+          for(const o of optsFor(sel[i])){
+            let add=0;
+            for(const ch of core.list) if(optClash(o,ch.opt)) add++;
+            for(const ch of chosen)    if(optClash(o,ch.opt)) add++;
+            if(conf+add<=f.maxConf) bt(i+1,chosen.concat([{course:sel[i],opt:o}]),conf+add);
+          }
+        })(0,[],core.conf);
+        if(out.length>=SOL_CAP) break;
+      }
+      if(out.length>=SOL_CAP) break;
+    }
+    if(out.length>=SOL_CAP) break;
+  }
+  return {list:out,truncated};
+}
+// total overlap minutes across a whole schedule — severity, not just count
+function optOverlap(o1,o2){
+  if(MX_ON && o1._ix!==undefined && o2._ix!==undefined && o1._ix<MX_N && o2._ix<MX_N)
+    return MX_OV[o1._ix*MX_N+o2._ix];
+  return rawOverlap(o1,o2);
+}
+function overlapMinutes(list){
+  let tot=0;
+  for(let i=0;i<list.length;i++) for(let j=i+1;j<list.length;j++){
+    if(list[i].course.id===list[j].course.id) continue;
+    tot+=optOverlap(list[i].opt,list[j].opt);
+  }
+  return tot;
+}
+// exam pressure: same-day collisions and the tightest gap, per semester
+function examStats(list){
+  const bySem={"א":[],"ב":[]};
+  for(const it of list){
+    const n=dnum((it.opt.exams||{}).a);
+    if(n!==null && bySem[it.opt.semester]) bySem[it.opt.semester].push(n);
+  }
+  let same=0, minGap=Infinity, count=0;
+  for(const sem of ["א","ב"]){
+    const arr=bySem[sem].sort((a,b)=>a-b); count+=arr.length;
+    for(let i=1;i<arr.length;i++){
+      const g=arr[i]-arr[i-1];
+      if(g===0) same++;
+      if(g<minGap) minGap=g;
+    }
+  }
+  return {same, gap:isFinite(minGap)?minGap:null, count};
+}
+// idle time between classes on the same day (merged blocks), and the single longest window
+function gapStats(list){
+  const byKey={};
+  for(const it of list) for(const m of it.opt.meetings){
+    const k=it.opt.semester+"|"+m.day;
+    (byKey[k]||(byKey[k]=[])).push([toMin(m.start),toMin(m.end)]);
+  }
+  let total=0, maxGap=0;
+  for(const k in byKey){
+    const arr=byKey[k].sort((a,b)=>a[0]-b[0]);
+    let end=arr[0][1];
+    for(let i=1;i<arr.length;i++){
+      const [st,en]=arr[i];
+      if(st>end){ const g=st-end; total+=g; if(g>maxGap) maxGap=g; }
+      if(en>end) end=en;
+    }
+  }
+  return {total,maxGap};
+}
+// class minutes after the "morning" cutoff (13:00)
+const PM_CUTOFF=13*60;
+function pmMinutes(list){
+  let t=0;
+  for(const it of list) for(const m of it.opt.meetings){
+    const st=toMin(m.start), en=toMin(m.end);
+    if(en>PM_CUTOFF) t+=en-Math.max(st,PM_CUTOFF);
+  }
+  return t;
+}
+function campusDays(list){ const s=new Set(); list.forEach(it=>it.opt.meetings.forEach(m=>s.add(it.opt.semester+"|"+m.day))); return s.size; }
+function latestEnd(list){ let mx=0; list.forEach(it=>it.opt.meetings.forEach(m=>{ mx=Math.max(mx,toMin(m.end)); })); return mx; }
+// days that run past 19:00 — the ones that actually feel long
+function lateDayCount(list){
+  const end={};
+  list.forEach(it=>it.opt.meetings.forEach(m=>{ const k=it.opt.semester+"|"+m.day; end[k]=Math.max(end[k]||0,toMin(m.end)); }));
+  return Object.values(end).filter(v=>v>19*60).length;
+}
+
+const SORTS={
+  balanced:{label:"מומלץ (איזון כללי)", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || a.pc.n-b.pc.n || a.sd-b.sd || b.ne-a.ne || a.imb-b.imb || a.days-b.days},
+  exams:   {label:"מבחנים מרווחים ביותר", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || a.exSame-b.exSame || ((b.exGap==null?-1:b.exGap)-(a.exGap==null?-1:a.exGap)) || a.pc.n-b.pc.n || a.sd-b.sd},
+  mild:    {label:"התנגשות הכי קצרה (בדקות)", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || a.ov-b.ov || a.sd-b.sd || b.ne-a.ne},
+  lawA:    {label:"הכי הרבה קורסים מהמסלול בסמסטר א׳", cmp:(a,b)=> (b.hit-a.hit) || b.lawA-a.lawA || a.pc.n-b.pc.n || a.sd-b.sd || b.ne-a.ne},
+  free:    {label:"הכי הרבה ימים חופשיים", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || b.free-a.free || a.pc.n-b.pc.n || a.sd-b.sd || b.ne-a.ne},
+  singles: {label:"הכי מעט ימים בודדים", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || a.sd-b.sd || a.pc.n-b.pc.n || b.ne-a.ne || a.days-b.days},
+  days:    {label:"הכי מעט ימי לימוד", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || a.days-b.days || a.sd-b.sd || a.pc.n-b.pc.n || b.ne-a.ne},
+  electives:{label:"הכי הרבה קורסי בחירה", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || b.ne-a.ne || a.pc.n-b.pc.n || a.sd-b.sd},
+  compact: {label:"בוקר + ימים מקובצים", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || a.pc.n-b.pc.n || b.ne-a.ne || (a.gap+a.pm)-(b.gap+b.pm) || a.maxGap-b.maxGap || a.days-b.days},
+  gaps:    {label:"הכי מעט חלונות בין שיעורים", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || b.ne-a.ne || a.gap-b.gap || a.maxGap-b.maxGap || a.pc.n-b.pc.n || a.days-b.days},
+  morning: {label:"הכי הרבה בבוקר (מעט אחרי 13:00)", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || b.ne-a.ne || a.pm-b.pm || a.pc.n-b.pc.n || a.gap-b.gap},
+  early:   {label:"מעט ימים ארוכים (עד 19:00)", cmp:(a,b)=> (b.hit-a.hit) || (b.lawHit-a.lawHit) || a.lateDays-b.lateDays || a.late-b.late || a.sd-b.sd || a.pc.n-b.pc.n},
+  semA:    {label:"עומס גדול בסמסטר א׳", cmp:(a,b)=> semCount(b,"א")-semCount(a,"א") || a.pc.n-b.pc.n || a.sd-b.sd},
+  semB:    {label:"עומס גדול בסמסטר ב׳", cmp:(a,b)=> semCount(b,"ב")-semCount(a,"ב") || a.pc.n-b.pc.n || a.sd-b.sd},
+};
+function semCount(sol,sem){ return sol.core.concat(sol.elec).filter(x=>x.opt.semester===sem).length; }
+
+function hm(min){ if(!min) return "0"; const h=Math.floor(min/60), m=min%60; return h? (m? h+":"+String(m).padStart(2,"0")+" ש׳" : h+" ש׳") : m+" דק׳"; }
+function trackChip(sol){
+  const tid=(browse.filters&&browse.filters.trackId)||(state.trackPref&&state.trackPref.trackId);
+  if(!tid || !sol.lawA&&!sol.lawAe) return "";
+  const t=trackById(tid), c=trackColor(t);
+  return `<span class="chip" style="background:${c.soft};border-color:${c.line};color:${c.ink}">
+    ${t.icon} ${sol.lawA} ${escapeHtml(t.name)} בא׳${sol.lawAe?` (+${sol.lawAe} בחירה)`:""}</span>`;
+}
+function pinnedChip(sol){
+  const L=lockedList(); if(!L.length) return "";
+  const names=L.filter(x=>x.c.type==="elective").map(x=>x.c.name);
+  if(!names.length) return "";
+  return `<span class="chip pin">📌 ${escapeHtml(names.join(" · "))}</span>`;
+}
+function freeChip(sol){
+  const names=d=>DAYS[d];
+  const both=sol.fa.filter(d=>sol.fb.includes(d));
+  const onlyA=sol.fa.filter(d=>!sol.fb.includes(d));
+  const onlyB=sol.fb.filter(d=>!sol.fa.includes(d));
+  if(!sol.fa.length && !sol.fb.length) return `<span class="chip">אין יום חופשי</span>`;
+  const parts=[];
+  if(both.length) parts.push(`<span class="chip free">${both.map(names).join(", ")} חופשי כל השנה</span>`);
+  if(onlyA.length) parts.push(`<span class="chip free">${onlyA.map(names).join(", ")} חופשי בא׳</span>`);
+  if(onlyB.length) parts.push(`<span class="chip free">${onlyB.map(names).join(", ")} חופשי בב׳</span>`);
+  return parts.join("");
+}
+
+/* ---- browse state ---- */
+let browse={list:[],idx:0,sort:"balanced",filters:null,truncated:false,custom:false};
+
+function applySolution(sol){
+  state.picks={};
+  sol.core.forEach(ch=>state.picks[ch.course.id]=ch.opt.id);
+  sol.elec.forEach(ch=>state.picks[ch.course.id]=ch.opt.id);
+  browse.custom=false;
+  render(); save();
+}
+function toast(msg,ms=2600){
+  const n=document.getElementById("savenote"); n.textContent=msg; n.classList.add("show");
+  clearTimeout(n._t); n._t=setTimeout(()=>{ n.classList.remove("show"); setTimeout(()=>n.textContent="נשמר ✓",300); },ms);
+}
+
+function gotoSolution(i){
+  if(!browse.list.length) return;
+  browse.idx=(i+browse.list.length)%browse.list.length;
+  applySolution(browse.list[browse.idx]);
+  renderBrowseBar();
+}
+function chips(sol){
+  const c=sol.pc.n;
+  const cw = c===0? `<span class="chip ok">ללא התנגשויות</span>`
+    : `<span class="chip ${sol.ov<=30?'mild':'bad'}">${c===1?"התנגשות אחת":c+" התנגשויות"} · ${sol.ov} דק׳</span>`;
+  return `<span class="chip">${sol.ne} בחירה</span>${cw}
+    <span class="chip ${sol.sd<=2?'ok':''}">${sol.sd} ימים בודדים</span>
+    <span class="chip">${sol.days} ימי לימוד</span>
+    <span class="chip ${sol.lateDays===0?'ok':''}">${sol.lateDays} ימים ארוכים</span>
+    ${freeChip(sol)}
+    ${trackChip(sol)}
+    <span class="chip ${sol.gap<=60?'ok':''}">חלונות ${hm(sol.gap)}${sol.maxGap>=120?` · הארוך ${hm(sol.maxGap)}`:""}</span>
+    <span class="chip">אחרי 13:00: ${hm(sol.pm)}</span>
+    ${pinnedChip(sol)}
+    ${sol.exCount?`<span class="chip ${sol.exSame?'bad':(sol.exGap!=null&&sol.exGap<=2?'mild':'ok')}">📅 ${sol.exCount} מבחנים${sol.exSame?` · ${sol.exSame} באותו יום`:(sol.exGap!=null?` · מרווח מינ׳ ${sol.exGap} ימים`:"")}</span>`:""}
+    <span class="chip">א׳ ${semCount(sol,"א")} · ב׳ ${semCount(sol,"ב")}</span>`;
+}
+function renderBrowseBar(){
+  const bar=document.getElementById("browse-bar");
+  if(!browse.list.length){ bar.classList.add("hide"); return; }
+  bar.classList.remove("hide");
+  const sol=browse.list[browse.idx];
+  const names=sol.elec.map(x=>x.course.name).join(" · ")||"—";
+  bar.innerHTML=`
+    <div class="bb-top">
+      <div class="bb-nav">
+        <button class="bb-arrow" id="bb-prev" title="הקודמת">▶</button>
+        <span class="bb-count">אפשרות <b>${browse.idx+1}</b> מתוך <b>${browse.list.length}${browse.truncated?"+":""}</b></span>
+        <button class="bb-arrow" id="bb-next" title="הבאה">◀</button>
+      </div>
+      <div class="bb-acts">
+        <button class="bb-btn" id="bb-shuffle" title="אקראי">🎲 ערבוב</button>
+        <button class="bb-btn" id="bb-list">כל האפשרויות</button>
+        <button class="bb-btn" id="bb-filter">סינון</button>
+        <button class="bb-btn ghost" id="bb-exit" title="יציאה">✕</button>
+      </div>
+    </div>
+    <div class="bb-meta">${chips(sol)}</div>
+    <div class="bb-elec">בחירה: ${escapeHtml(names)}${browse.custom?' <span class="chip bad">שונה ידנית</span>':''}</div>`;
+  bar.querySelector("#bb-prev").onclick=()=>gotoSolution(browse.idx-1);
+  bar.querySelector("#bb-next").onclick=()=>gotoSolution(browse.idx+1);
+  bar.querySelector("#bb-shuffle").onclick=()=>{
+    if(browse.list.length<2) return;
+    let r=browse.idx; while(r===browse.idx) r=Math.floor(Math.random()*browse.list.length);
+    gotoSolution(r); toast("ערבוב · אפשרות "+(browse.idx+1));
+  };
+  bar.querySelector("#bb-list").onclick=openListModal;
+  bar.querySelector("#bb-filter").onclick=openFilterModal;
+  bar.querySelector("#bb-exit").onclick=()=>{ browse.list=[]; renderBrowseBar(); };
+}
+
+function runSearch(f,sortKey){
+  const res=enumerateSolutions(f);
+  if(!res.list.length){
+    let msg="לא נמצאו מערכות בסינון הזה.";
+    if(f.freeRequire && f.freeDays && f.freeDays.length){
+      // diagnose: is the day free-able at all, at any conflict budget?
+      const relaxed=enumerateSolutions({...f,freeRequire:true,maxConf:Math.max(f.maxConf,3),maxSingle:99,electives:"any"});
+      msg += relaxed.list.length
+        ? "\n\nהימים שביקשת אפשריים, אבל דורשים ויתור: נסי להעלות את תקציב ההתנגשויות, להתיר יותר ימים בודדים, או להוריד קורס בחירה."
+        : "\n\nהימים שביקשת אינם ניתנים לפינוי עם קורסי החובה הנוכחיים. נסי לבחור יום אחר, או לעבור למצב ״שאיפה״ במקום ״חובה״.";
+    } else if(lockedList().length){
+      msg += "\n\nייתכן שהקורסים שנעלת (📌) לא מסתדרים יחד בתנאים האלה. נסי לשחרר נעילה אחת, להעלות את תקציב ההתנגשויות, או לשחרר מועד קבוע (🔒).";
+    } else if(f.trackRequire && f.minA && f.trackId){
+      msg += `\n\n${f.minA} קורסי ${trackById(f.trackId).name} בסמסטר א׳ דורשים יותר התנגשויות ממה שהתרת. נסי להעלות את תקציב ההתנגשויות, או לעבור למצב ״שאיפה״.`;
+    } else {
+      msg+=" נסי להקל: יותר התנגשויות, יותר ימים בודדים, או פחות קורסי בחירה.";
+    }
+    infoModal("לא נמצאו תוצאות",msg);
+    return false;
+  }
+  res.list.sort(SORTS[sortKey].cmp);
+  browse={list:res.list,idx:0,sort:sortKey,filters:f,truncated:res.truncated,custom:false};
+  applySolution(res.list[0]);
+  renderBrowseBar();
+  const top=res.list[0];
+  const freeTxt = top.free? ` · ${top.free} ימים חופשיים` : "";
+  toast(`נמצאו ${res.list.length}${res.truncated?"+":""} מערכות${freeTxt}`);
+  return true;
+}
+
+/* ---- in-app dialogs (native confirm/alert are blocked in sandboxed frames) ---- */
+function confirmModal(title,msg,onYes,opt){
+  opt=opt||{};
+  modal.innerHTML=`
+    <h3>${escapeHtml(title)}</h3>
+    <p class="msub" style="white-space:pre-line">${escapeHtml(msg)}</p>
+    <div class="modal-actions">
+      <button class="btn-primary ${opt.danger?'danger':''}" id="cm-yes">${escapeHtml(opt.yes||"אישור")}</button>
+      <button class="btn-ghost" id="cm-no">ביטול</button>
+    </div>`;
+  scrim.classList.add("on");
+  modal.querySelector("#cm-no").onclick=closeModal;
+  modal.querySelector("#cm-yes").onclick=()=>{ closeModal(); onYes&&onYes(); };
+}
+function infoModal(title,msg){
+  modal.innerHTML=`
+    <h3>${escapeHtml(title)}</h3>
+    <p class="msub" style="white-space:pre-line">${escapeHtml(msg)}</p>
+    <div class="modal-actions"><button class="btn-primary" id="im-ok">הבנתי</button></div>`;
+  scrim.classList.add("on");
+  modal.querySelector("#im-ok").onclick=closeModal;
+}
+
+function lockedList(){
+  return state.courses.filter(c=>(state.locks||{})[c.id]).map(c=>{
+    const v=(state.locks||{})[c.id];
+    const o=v!=="any" && c.options.find(x=>x.id===v);
+    return {c, opt:o||null};
+  });
+}
+function lockSummaryHtml(){
+  const L=lockedList(); if(!L.length) return "";
+  const rows=L.map(x=>`<span class="chip pin">📌 ${escapeHtml(x.c.name)}${x.opt?` · סמסטר ${x.opt.semester}׳ קבוע`:""}</span>`).join("");
+  return `<div class="field"><label>קורסים שביקשת לקחת</label>
+    <div class="meets">${rows}</div>
+    <p class="msub" style="margin:7px 0 0">המערכת תיבנה סביבם. אפשר לשחרר בלחיצה על 📌 ליד הקורס.</p></div>`;
+}
+// per-elective feasibility report — computed incrementally so the UI stays responsive
+function openElectiveReport(){
+  const elec=state.courses.filter(c=>c.type==="elective");
+  if(!elec.length){ infoModal("אין קורסי בחירה","הוסיפי קורסי בחירה כדי לראות מה כל אחד מהם עולה."); return; }
+  modal.innerHTML=`
+    <h3>מה עולה כל קורס בחירה?</h3>
+    <p class="msub">לכל קורס — המערכת הטובה ביותר שמכילה אותו (עם 2 קורסי בחירה). כך אפשר לדעת מראש איזה קורס "יקר".</p>
+    <div class="lwrap">${elec.map((c,i)=>`
+      <div class="lrow"><span class="lidx">${i+1}</span><span class="lbody">
+        <b style="font-size:14px">${escapeHtml(c.name)}</b>
+        <span class="lelec" id="er-${i}">מחשב…</span></span></div>`).join("")}</div>
+    <div class="modal-actions"><button class="btn-ghost" id="er-close">סגירה</button></div>`;
+  scrim.classList.add("on");
+  modal.querySelector("#er-close").onclick=closeModal;
+  const saved=JSON.parse(JSON.stringify(state.locks||{}));
+  let i=0;
+  (function step(){
+    if(i>=elec.length || !scrim.classList.contains("on")){ state.locks=saved||{}; return; }
+    const c=elec[i]; state.locks={[c.id]:"any"};
+    let best=null;
+    for(const mc of [0,1,2]){
+      const r=enumerateSolutions({electives:"2",maxConf:mc,maxSingle:99,
+        freeDays:[],freeRequire:false,trackId:null,minA:0,trackRequire:false});
+      if(r.list.length){ r.list.sort(SORTS.mild.cmp); best=r.list[0]; break; }
+    }
+    const el=modal.querySelector("#er-"+i);
+    if(el){
+      el.innerHTML = best ? `
+        ${best.pc.n===0?'<span class="chip ok">ללא התנגשויות</span>'
+          :`<span class="chip ${best.ov<=30?'mild':'bad'}">${best.pc.n===1?"התנגשות אחת":best.pc.n+" התנגשויות"} · ${best.ov} דק׳</span>`}
+        <span class="chip">${best.sd} ימים בודדים</span>
+        <span class="chip">${best.free} ימים חופשיים</span>
+        <span class="chip">משתלב עם: ${escapeHtml(best.elec.filter(x=>x.course.id!==c.id).map(x=>x.course.name).join(", ")||"—")}</span>`
+        : `<span class="chip bad">לא נמצאה מערכת עד 2 התנגשויות</span>`;
+    }
+    i++; setTimeout(step,15);
+  })();
+}
+function openFilterModal(){
+  const pref=state.freePref||{days:[],require:false};
+  const f=browse.filters||{electives:"any",maxConf:0,maxSingle:99};
+  f.freeDays=(f.freeDays&&f.freeDays.length)?f.freeDays.slice():pref.days.slice();
+  f.freeRequire=(typeof f.freeRequire==="boolean")?f.freeRequire:pref.require;
+  f.freeSem=f.freeSem||pref.sem||"any";
+  const tp=state.trackPref||{trackId:null,minA:0,require:false};
+  f.trackId=(f.trackId!==undefined)?f.trackId:tp.trackId;
+  f.minA=(typeof f.minA==="number")?f.minA:(tp.minA||0);
+  f.trackRequire=(typeof f.trackRequire==="boolean")?f.trackRequire:!!tp.require;
+  if(f.trackId && !state.tracks.some(t=>t.id===f.trackId)) f.trackId=null;
+  const maxLaw=f.trackId? state.courses.filter(c=>c.type==="mandatory"&&c.track===f.trackId).length : 0;
+  const sortOpts=Object.entries(SORTS).map(([k,v])=>`<option value="${k}" ${(browse.sort===k)?"selected":""}>${v.label}</option>`).join("");
+  modal.innerHTML=`
+    <h3>חיפוש כל האפשרויות</h3>
+    <p class="msub">אמפה את כל המערכות התקינות לפי הסינון, ותוכלי לדפדף ביניהן.</p>
+    ${lockSummaryHtml()}
+    <div class="field"><label>מספר קורסי בחירה</label>
+      <div class="seg-in" id="f-elec">
+        ${["any"].concat(Array.from({length:state.courses.filter(c=>c.type==="elective").length},(_,i)=>String(i+1)))
+            .map(v=>`<button data-v="${v}" class="${String(f.electives)===v?"on":""}">${v==="any"?"הכל":v}</button>`).join("")}
+      </div>
+      <p class="msub" style="margin:7px 0 0">ככל שיש יותר קורסי בחירה, נדרש תקציב התנגשויות גדול יותר. אם לא מתקבלות תוצאות — העלי את התקציב מטה.</p></div>
+    <div class="field"><label>מקסימום התנגשויות</label>
+      <div class="seg-in" id="f-conf">
+        ${[0,1,2,3].map(v=>`<button data-v="${v}" class="${f.maxConf===v?"on":""}">${v===0?"0 (נקי)":v}</button>`).join("")}
+      </div></div>
+    <div class="field"><label>מקסימום ימים בודדים</label>
+      <div class="seg-in" id="f-sd">
+        ${[2,3,4,99].map(v=>`<button data-v="${v}" class="${f.maxSingle===v?"on":""}">${v===99?"ללא הגבלה":v}</button>`).join("")}
+      </div></div>
+    <div class="field"><label>ימים שאני רוצה חופשיים</label>
+      <div class="daypick" id="f-free">
+        ${DAYS.map((d,i)=>`<button data-d="${i}" class="${f.freeDays.includes(i)?"on":""}">${d}</button>`).join("")}
+      </div>
+      <div class="seg-in" id="f-freesem" style="margin-top:8px">
+        <button data-v="any" class="${(f.freeSem||"any")==="any"?"on":""}">כל סמסטר</button>
+        <button data-v="א" class="${f.freeSem==="א"?"on":""}">סמסטר א׳</button>
+        <button data-v="ב" class="${f.freeSem==="ב"?"on":""}">סמסטר ב׳</button>
+      </div>
+      <div class="seg-in" id="f-freemode" style="margin-top:8px">
+        <button data-v="0" class="${f.freeRequire?"":"on"}">שאיפה</button>
+        <button data-v="1" class="${f.freeRequire?"on":""}">חובה</button>
+      </div>
+      <p class="msub" style="margin:7px 0 0">״שאיפה״ מקדמת אפשרויות שבהן היום פנוי; ״חובה״ מציגה רק אותן. אם בוחרים סמסטר, היום נבדק רק בו.</p>
+    </div>
+    <div class="field"><label>ריכוז מסלול בסמסטר א׳</label>
+      <select id="f-trk">
+        <option value="">לא משנה</option>
+        ${state.tracks.map(t=>`<option value="${t.id}" ${f.trackId===t.id?"selected":""}>${t.icon} ${escapeHtml(t.name)}</option>`).join("")}
+      </select>
+      <div class="seg-in" id="f-law" style="margin-top:8px">
+        ${[0,1,2,3,4].map(v=>`<button data-v="${v}" class="${f.minA===v?"on":""}">${v===0?"לא משנה":"לפחות "+v}</button>`).join("")}
+      </div>
+      <div class="seg-in" id="f-lawmode" style="margin-top:8px">
+        <button data-v="0" class="${f.trackRequire?"":"on"}">שאיפה</button>
+        <button data-v="1" class="${f.trackRequire?"on":""}">חובה</button>
+      </div>
+      <p class="msub" style="margin:7px 0 0" id="f-trk-note">${f.trackId?`יש ${maxLaw} קורסי חובה במסלול ${escapeHtml(trackById(f.trackId).name)}.`:"בחרי מסלול כדי לרכז אותו בסמסטר א׳."}</p>
+    </div>
+    <div class="field"><label>מיון התוצאות</label><select id="f-sort">${sortOpts}</select></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="f-go">הצגת האפשרויות</button>
+      <button class="btn-ghost" id="f-cancel">ביטול</button>
+    </div>`;
+  scrim.classList.add("on");
+  const pick=(id,key,num)=>{
+    modal.querySelectorAll("#"+id+" button").forEach(b=>b.onclick=()=>{
+      modal.querySelectorAll("#"+id+" button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); f[key]= num? +b.dataset.v : b.dataset.v;
+    });
+  };
+  pick("f-elec","electives",false); pick("f-conf","maxConf",true); pick("f-sd","maxSingle",true);
+  modal.querySelectorAll("#f-free button").forEach(b=>b.onclick=()=>{
+    const d=+b.dataset.d; b.classList.toggle("on");
+    f.freeDays = f.freeDays.includes(d) ? f.freeDays.filter(x=>x!==d) : f.freeDays.concat([d]);
+  });
+  modal.querySelectorAll("#f-freesem button").forEach(b=>b.onclick=()=>{
+    modal.querySelectorAll("#f-freesem button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); f.freeSem=b.dataset.v;
+  });
+  modal.querySelectorAll("#f-freemode button").forEach(b=>b.onclick=()=>{
+    modal.querySelectorAll("#f-freemode button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); f.freeRequire = b.dataset.v==="1";
+  });
+  modal.querySelectorAll("#f-law button").forEach(b=>b.onclick=()=>{
+    modal.querySelectorAll("#f-law button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); f.minA=+b.dataset.v;
+  });
+  modal.querySelectorAll("#f-lawmode button").forEach(b=>b.onclick=()=>{
+    modal.querySelectorAll("#f-lawmode button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); f.trackRequire = b.dataset.v==="1";
+  });
+  const trkSel=modal.querySelector("#f-trk");
+  if(trkSel) trkSel.onchange=()=>{
+    f.trackId=trkSel.value||null;
+    const note=modal.querySelector("#f-trk-note");
+    if(note) note.textContent=f.trackId
+      ? `יש ${state.courses.filter(c=>c.type==="mandatory"&&c.track===f.trackId).length} קורסי חובה במסלול ${trackById(f.trackId).name}.`
+      : "בחרי מסלול כדי לרכז אותו בסמסטר א׳.";
+  };
+  modal.querySelector("#f-cancel").onclick=closeModal;
+  modal.querySelector("#f-go").onclick=()=>{
+    const sortKey=modal.querySelector("#f-sort").value;
+    // remember the wish permanently
+    state.freePref={days:f.freeDays.slice(),require:f.freeRequire,sem:f.freeSem};
+    state.trackPref={trackId:f.trackId,minA:f.minA,require:f.trackRequire};
+    const filters={electives:f.electives,maxConf:f.maxConf,maxSingle:f.maxSingle,
+                   freeDays:f.freeDays.slice(),freeRequire:f.freeRequire,freeSem:f.freeSem,
+                   trackId:f.trackId,minA:f.minA,trackRequire:f.trackRequire};
+    closeModal();
+    toast("מחשב את כל האפשרויות…",8000);
+    setTimeout(()=>{ runSearch(filters,sortKey); save(); },60);
+  };
+}
+
+function openListModal(){
+  const rows=browse.list.map((s,i)=>`
+    <button class="lrow ${i===browse.idx?'cur':''}" data-i="${i}">
+      <span class="lidx">${i+1}</span>
+      <span class="lbody"><span class="lchips">${chips(s)}</span>
+      <span class="lelec">${escapeHtml(s.elec.map(x=>x.course.name).join(" · ")||"ללא קורסי בחירה")}</span></span>
+    </button>`).join("");
+  const sortOpts=Object.entries(SORTS).map(([k,v])=>`<option value="${k}" ${(browse.sort===k)?"selected":""}>${v.label}</option>`).join("");
+  modal.innerHTML=`
+    <h3>כל האפשרויות (${browse.list.length}${browse.truncated?"+":""})</h3>
+    <p class="msub">לחיצה על אפשרות תטען אותה ללוח.</p>
+    <div class="field"><label>מיון</label><select id="l-sort">${sortOpts}</select></div>
+    <div class="lwrap">${rows}</div>
+    <div class="modal-actions"><button class="btn-ghost" id="l-close">סגירה</button></div>`;
+  scrim.classList.add("on");
+  modal.querySelector("#l-close").onclick=closeModal;
+  modal.querySelector("#l-sort").onchange=e=>{
+    const cur=browse.list[browse.idx];
+    browse.sort=e.target.value; browse.list.sort(SORTS[browse.sort].cmp);
+    browse.idx=Math.max(0,browse.list.indexOf(cur));
+    openListModal();
+  };
+  modal.querySelectorAll(".lrow").forEach(b=>b.onclick=()=>{
+    gotoSolution(+b.dataset.i); closeModal();
+  });
+  const cur=modal.querySelector(".lrow.cur"); if(cur) cur.scrollIntoView({block:"center"});
+}
+function openSuggestModal(){ openFilterModal(); }
+
+/* ===================== EVENTS ===================== */
+document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>openCourseModal(b.dataset.add));
+document.getElementById("sem-seg").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-sem]"); if(!b)return;
+  state.sem=b.dataset.sem;
+  document.querySelectorAll("#sem-seg button").forEach(x=>x.classList.toggle("on",x===b));
+  renderCalendar(); renderStatus();
+  document.getElementById("print-title").textContent=((activePlan()&&activePlan().name)||"מערכת")+" — סמסטר "+state.sem+"׳";
+  save();
+});
+document.getElementById("btn-suggest").onclick=openFilterModal;
+document.addEventListener("keydown",e=>{
+  if(!browse.list.length || scrim.classList.contains("on")) return;
+  if(e.target.tagName==="INPUT"||e.target.tagName==="SELECT") return;
+  if(e.key==="ArrowLeft"){ e.preventDefault(); gotoSolution(browse.idx+1); }
+  if(e.key==="ArrowRight"){ e.preventDefault(); gotoSolution(browse.idx-1); }
+});
+document.getElementById("btn-print").onclick=()=>window.print();
+document.getElementById("btn-transfer").onclick=openTransferModal;
+document.getElementById("btn-tracks").onclick=openTrackManager;
+document.getElementById("btn-report").onclick=openElectiveReport;
+document.getElementById("btn-unlock").onclick=()=>{
+  if(!lockedList().length){ infoModal("אין נעילות","לא סימנת עדיין קורסים שאת רוצה לקחת. סמני 📌 ליד קורס בחירה, או 🔒 ליד מועד מסוים."); return; }
+  confirmModal("שחרור נעילות","לשחרר את כל הקורסים והמועדים הנעולים? השיבוץ עצמו יישאר.",()=>{
+    state.locks={}; render(); save(); toast("הנעילות שוחררו");
+  });
+};
+document.getElementById("btn-clear").onclick=()=>confirmModal("ניקוי בחירות","לנקות את כל הבחירות במערכת הזו? הקורסים יישארו.",()=>{
+  state.picks={}; if(browse.list.length) browse.custom=true; render(); save(); toast("הבחירות נוקו");
+},{danger:true,yes:"ניקוי"});
+document.getElementById("btn-reset").onclick=()=>{
+  confirmModal("שחזור הרשימה המקורית",
+    'לשחזר את רשימת הקורסים המקורית במערכת "'+((activePlan()&&activePlan().name)||"")+'"? שאר המערכות לא יושפעו.',()=>{
+    state=normalize(blankState(true));
+    if(activePlan()) activePlan().state=state;
+    browse={list:[],idx:0,sort:"balanced",filters:null,truncated:false,custom:false};
+    render(); save(); toast("הרשימה שוחזרה");
+  },{danger:true,yes:"שחזור"});
+};
+
+/* ===================== INIT ===================== */
+/* ---- built-in plans shipped inside this file ----
+   Added once per browser: if the person later deletes one, it does not come back. */
+const SEED_PLANS = [{"id": "p1788606745045996", "name": "עדו שנה א׳", "state": {"courses": [{"id": "id2_tvu4", "name": "חדו״א א׳", "type": "mandatory", "track": "t178860675627991", "options": [{"id": "id1_pesk", "semester": "א", "meetings": [{"day": 2, "start": "14:30", "end": "16:00"}, {"day": 3, "start": "14:30", "end": "16:00"}, {"day": 4, "start": "08:30", "end": "10:00"}], "exams": {}}, {"id": "id3_cvoc", "semester": "א", "meetings": [{"day": 2, "start": "16:30", "end": "18:00"}, {"day": 4, "start": "14:30", "end": "16:00"}, {"day": 3, "start": "12:30", "end": "14:00"}], "exams": {}}]}, {"id": "id2_k0c3", "name": "מיקרו", "type": "mandatory", "track": "t178860675627991", "options": [{"id": "id1_nnpc", "semester": "א", "meetings": [{"day": 1, "start": "08:30", "end": "10:00"}, {"day": 3, "start": "16:30", "end": "18:00"}, {"day": 4, "start": "18:30", "end": "20:00"}], "exams": {}}, {"id": "id3_vqsv", "semester": "א", "meetings": [{"day": 2, "start": "08:30", "end": "10:00"}, {"day": 4, "start": "10:30", "end": "12:00"}, {"day": 2, "start": "12:30", "end": "14:00"}], "exams": {}}, {"id": "id4_tysa", "semester": "א", "meetings": [{"day": 0, "start": "10:30", "end": "12:00"}, {"day": 3, "start": "12:30", "end": "14:00"}, {"day": 3, "start": "08:30", "end": "10:00"}], "exams": {}}, {"id": "id5_pmuz", "semester": "א", "meetings": [{"day": 0, "start": "18:00", "end": "19:45"}, {"day": 1, "start": "14:00", "end": "15:45"}], "exams": {}}]}, {"id": "id7_5tym", "name": "סטטיסטיקה א", "type": "mandatory", "track": "t178860675627991", "options": [{"id": "id6_4je1", "semester": "א", "meetings": [{"day": 0, "start": "16:30", "end": "18:00"}, {"day": 2, "start": "10:30", "end": "12:00"}, {"day": 1, "start": "15:00", "end": "16:30"}], "exams": {}}, {"id": "id8_mpke", "semester": "א", "meetings": [{"day": 1, "start": "10:30", "end": "12:00"}, {"day": 4, "start": "12:30", "end": "14:00"}, {"day": 2, "start": "18:30", "end": "20:00"}], "exams": {}}, {"id": "id9_f8dv", "semester": "א", "meetings": [{"day": 1, "start": "19:00", "end": "20:30"}, {"day": 3, "start": "18:30", "end": "20:00"}], "exams": {}}]}, {"id": "id11_psfc", "name": "חדו״א ב", "type": "mandatory", "track": "t178860675627991", "options": [{"id": "id3_mu44", "semester": "ב", "meetings": [{"day": 0, "start": "14:30", "end": "16:00"}, {"day": 2, "start": "14:30", "end": "16:00"}, {"day": 2, "start": "10:30", "end": "12:00"}], "exams": {}}, {"id": "id4_pgf6", "semester": "ב", "meetings": [{"day": 1, "start": "13:00", "end": "14:30"}, {"day": 4, "start": "14:30", "end": "16:00"}, {"day": 3, "start": "08:30", "end": "10:00"}], "exams": {}}]}, {"id": "id6_jhnx", "name": "מאקרו", "type": "mandatory", "track": "t178860675627991", "options": [{"id": "id5_87zi", "semester": "ב", "meetings": [{"day": 1, "start": "17:00", "end": "18:30"}, {"day": 4, "start": "18:30", "end": "20:00"}], "exams": {}}, {"id": "id7_e7tp", "semester": "ב", "meetings": [{"day": 1, "start": "15:00", "end": "16:30"}, {"day": 3, "start": "14:30", "end": "16:00"}, {"day": 2, "start": "10:30", "end": "12:00"}], "exams": {}}, {"id": "id8_lnks", "semester": "ב", "meetings": [{"day": 0, "start": "16:30", "end": "18:00"}, {"day": 2, "start": "16:30", "end": "18:00"}], "exams": {}}]}, {"id": "id10_0tj6", "name": "סטטיסטיקה ב", "type": "mandatory", "track": "t178860675627991", "options": [{"id": "id9_01cj", "semester": "ב", "meetings": [{"day": 0, "start": "10:30", "end": "12:00"}, {"day": 2, "start": "16:30", "end": "18:00"}, {"day": 1, "start": "19:00", "end": "20:30"}], "exams": {}}, {"id": "id11_zwg7", "semester": "ב", "meetings": [{"day": 1, "start": "10:30", "end": "12:00"}, {"day": 2, "start": "16:30", "end": "18:00"}, {"day": 3, "start": "18:30", "end": "20:00"}], "exams": {}}, {"id": "id27_ml13", "semester": "ב", "meetings": [{"day": 0, "start": "18:30", "end": "20:00"}, {"day": 2, "start": "18:30", "end": "20:00"}], "exams": {}}]}, {"id": "id14_x0ev", "name": "יסודות החשבונאות", "type": "mandatory", "track": "t178860676317664", "options": [{"id": "id13_vorb", "semester": "א", "meetings": [{"day": 1, "start": "09:30", "end": "12:00"}], "exams": {}}, {"id": "id15_f3es", "semester": "א", "meetings": [{"day": 1, "start": "12:30", "end": "15:00"}], "exams": {}}, {"id": "id16_jdvh", "semester": "ב", "meetings": [{"day": 4, "start": "08:30", "end": "11:00"}], "exams": {}}]}, {"id": "id18_1nhf", "name": "יסודות מדעי ההתנהגות", "type": "mandatory", "track": "t178860676317664", "options": [{"id": "id17_9wlt", "semester": "א", "meetings": [{"day": 2, "start": "13:30", "end": "16:00"}], "exams": {}}, {"id": "id19_36rp", "semester": "א", "meetings": [{"day": 3, "start": "12:30", "end": "15:00"}], "exams": {}}, {"id": "id20_pa4y", "semester": "א", "meetings": [{"day": 3, "start": "08:30", "end": "11:00"}], "exams": {}}, {"id": "id21_3x4a", "semester": "ב", "meetings": [{"day": 3, "start": "10:30", "end": "13:00"}], "exams": {}}]}, {"id": "id23_5eqz", "name": "מודלים עסקיים באקסל", "type": "elective", "track": "t178860676317664", "options": [{"id": "id22_y2w9", "semester": "ב", "meetings": [{"day": 3, "start": "08:30", "end": "10:00"}], "exams": {}}, {"id": "id24_v33g", "semester": "ב", "meetings": [{"day": 3, "start": "16:30", "end": "18:00"}], "exams": {}}]}, {"id": "id26_nav5", "name": "מסוגלות גלובלית בזירות רב תרבותיות", "type": "elective", "track": "t178860676317664", "options": [{"id": "id25_wy06", "semester": "ב", "meetings": [{"day": 2, "start": "14:30", "end": "16:00"}], "exams": {}}]}], "picks": {"id2_tvu4": "id1_pesk", "id2_k0c3": "id3_vqsv", "id7_5tym": "id8_mpke", "id11_psfc": "id3_mu44", "id10_0tj6": "id27_ml13", "id14_x0ev": "id15_f3es", "id18_1nhf": "id21_3x4a", "id23_5eqz": "id22_y2w9", "id6_jhnx": "id8_lnks"}, "sem": "א", "locks": {}, "tracks": [{"id": "t178860675627991", "name": "כלכלה", "icon": "•", "ci": 2}, {"id": "t178860676317664", "name": "מנהל עסקים", "icon": "•", "ci": 1}], "freePref": {"days": [4, 0], "require": false, "sem": "any"}, "trackPref": {"trackId": null, "minA": 0, "require": false}}}];
+/* ===================== PROFILES ===================== */
+const AVATAR_COLORS=["#2E6E69","#B0722A","#5b46a0","#2b5f8f","#8f2f52","#1f6b56","#8a6224","#5c6470"];
+const picker=document.getElementById("picker");
+let pickerMode="pick";       // pick | manage | add | rename:<id>
+function profileById(id){ return profiles.list.find(p=>p.id===id); }
+function avatarHtml(p){
+  const ch=(p.name.trim()[0]||"?").toUpperCase();
+  return `<span class="avatar" style="background:${AVATAR_COLORS[p.ci%AVATAR_COLORS.length]}">${escapeHtml(ch)}</span>`;
+}
+function renderWho(){
+  const b=document.getElementById("who-btn"), p=profileById(PID);
+  b.innerHTML = p ? `${avatarHtml(p)}<span>${escapeHtml(p.name)}<small>החלפת פרופיל</small></span>` : "";
+}
+function renderPicker(){
+  const L=profiles.list, managing=pickerMode==="manage";
+  const renaming=pickerMode.startsWith("rename:") ? profileById(pickerMode.slice(7)) : null;
+  const adding=pickerMode==="add" || !L.length;
+  picker.classList.toggle("manage", managing);
+  let html=`<h2 id="picker-title">${L.length?"מי מתכנן/ת עכשיו?":"ברוכים הבאים 👋"}</h2>
+    <p class="psub">${L.length?"כל פרופיל שומר מערכות משלו, בדפדפן הזה בלבד.":"איך קוראים לך? ניצור לך פרופיל משלך לתכנון הסמסטר."}</p>`;
+  if(L.length){
+    html+=`<div class="pgrid">`+L.map(p=>`
+      <button class="pcard" data-pid="${p.id}">${avatarHtml(p)}<span class="pname">${escapeHtml(p.name)}</span>
+        <span class="pedit"><span data-act="rename">שינוי שם</span><span class="del" data-act="delete">מחיקה</span></span>
+      </button>`).join("")+
+      (managing?"":`<button class="pcard add" data-act="add"><span class="avatar">+</span><span class="pname">פרופיל חדש</span></button>`)+
+      `</div>`;
+  }
+  if(adding || renaming){
+    html+=`<form class="pform" id="pform">
+      <input id="pname-in" maxlength="24" autocomplete="off" placeholder="${renaming?"שם חדש":"למשל: דניאל"}" value="${renaming?escapeHtml(renaming.name):""}">
+      <button class="btn-primary" type="submit">${renaming?"שמירה":"יצירת פרופיל"}</button>
+      ${L.length?`<button class="btn-ghost" type="button" data-act="cancel">ביטול</button>`:""}
+    </form>`;
+  } else if(L.length){
+    html+=`<div class="pfoot">
+      ${managing?`<button class="btn-primary" data-act="done">סיום</button>`:`<button class="btn-ghost" data-act="manage">ניהול פרופילים</button>`}
+      ${PID&&!managing?`<button class="btn-ghost" data-act="close">חזרה ל${escapeHtml(profileById(PID).name)}</button>`:""}
+    </div>`;
+  }
+  html+=`<p class="pnote">הנתונים נשמרים מקומית במחשב ובדפדפן הזה. מחשב אחר יתחיל עם רשימת פרופילים משלו — להעברה אפשר להשתמש ב״ייצוא / ייבוא״.</p>`;
+  picker.innerHTML=html;
+  const inp=picker.querySelector("#pname-in"); if(inp){ inp.focus(); inp.select(); }
+}
+function showPicker(mode){
+  flushSave();
+  pickerMode=mode||"pick"; renderPicker(); picker.classList.add("on");
+}
+function hidePicker(){ picker.classList.remove("on"); }
+function createProfile(name){
+  name=name.trim(); if(!name) return;
+  if(profiles.list.some(p=>p.name.trim()===name)){ toast("כבר קיים פרופיל בשם הזה"); return; }
+  const id="u"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  const used=new Set(profiles.list.map(p=>p.ci));
+  let ci=0; while(used.has(ci) && ci<AVATAR_COLORS.length) ci++;
+  if(ci>=AVATAR_COLORS.length) ci=profiles.list.length%AVATAR_COLORS.length;
+  // the very first profile adopts plans saved by the earlier, profile-less version
+  if(!profiles.migrated){
+    profiles.migrated=true;
+    const legacy=lsRead(LEGACY_WS_KEY);
+    if(!profiles.list.length && legacy && legacy.plans && legacy.plans.length) lsWrite(wsKey(id), legacy);
+  }
+  profiles.list.push({id, name, ci, createdAt:Date.now()});
+  saveProfiles();
+  openProfile(id);
+}
+function openProfile(id){
+  if(!profileById(id)) return;
+  flushSave();
+  PID=id; profiles.last=id; saveProfiles();
+  const saved=lsRead(wsKey(id));
+  if(saved && saved.plans && saved.plans.length){
+    ws=saved;
+    if(ws.active==null || ws.active>=ws.plans.length) ws.active=0;
+    ws.plans.forEach(pl=>pl.state=normalize(pl.state));
+  } else {
+    // new profile: one empty plan; built-in plans stay available via "+" on the plan tabs
+    ws={plans:[{id:"p1",name:"המערכת שלי",state:normalize(blankState(false))}], active:0,
+        seeded:SEED_PLANS.map(sp=>sp.id)};
+  }
+  state=ws.plans[ws.active].state;
+  browse={list:[],idx:0,sort:"balanced",filters:null,truncated:false,custom:false};
+  hidePicker(); render(); renderWho(); writeWS();
+  document.querySelectorAll(".catalog,.cal-col").forEach(el=>el.scrollTop=0);
+}
+function deleteProfile(id){
+  const p=profileById(id); if(!p) return;
+  confirmModal("מחיקת פרופיל",`למחוק את הפרופיל "${p.name}" וכל המערכות שלו? הפעולה בלתי הפיכה.`,()=>{
+    if(!profileById(id)) return;
+    profiles.list=profiles.list.filter(x=>x.id!==id);
+    lsRemove(wsKey(id));
+    if(PID===id){ PID=null; clearTimeout(saveTimer); saveTimer=null; }
+    if(profiles.last===id) delete profiles.last;
+    saveProfiles();
+    pickerMode=profiles.list.length?"manage":"add"; renderPicker();
+  },{danger:true,yes:"מחיקה"});
+}
+picker.addEventListener("click",e=>{
+  const actEl=e.target.closest("[data-act]"), card=e.target.closest(".pcard[data-pid]");
+  const act=actEl&&actEl.dataset.act;
+  if(card && act==="rename"){ pickerMode="rename:"+card.dataset.pid; renderPicker(); return; }
+  if(card && act==="delete"){ deleteProfile(card.dataset.pid); return; }
+  if(card){ if(pickerMode!=="manage") openProfile(card.dataset.pid); return; }
+  if(act==="add"){ pickerMode="add"; renderPicker(); }
+  else if(act==="manage"){ pickerMode="manage"; renderPicker(); }
+  else if(act==="done"||act==="cancel"){ pickerMode=act==="cancel"&&pickerMode.startsWith("rename:")?"manage":"pick"; renderPicker(); }
+  else if(act==="close"){ hidePicker(); }
+});
+picker.addEventListener("submit",e=>{
+  e.preventDefault();
+  const v=picker.querySelector("#pname-in").value.trim(); if(!v) return;
+  if(pickerMode.startsWith("rename:")){
+    const p=profileById(pickerMode.slice(7));
+    if(p){ p.name=v; saveProfiles(); if(p.id===PID) renderWho(); }
+    pickerMode="manage"; renderPicker();
+  } else createProfile(v);
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape" && picker.classList.contains("on") && PID && !document.getElementById("scrim").classList.contains("on")) hidePicker();
+});
+document.getElementById("who-btn").onclick=()=>showPicker("pick");
+
+(function init(){
+  const saved=lsRead(PROFILES_KEY);
+  if(saved && Array.isArray(saved.list)) profiles=saved;
+  renderSyncBadge();
+  showPicker("pick");      // Netflix-style: ask who's planning every time the page opens
+})();
+</script>
+</body>
+</html>
